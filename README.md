@@ -1,9 +1,9 @@
-# OpenVPN 管理面板（linkvpn）
+# OpenVPN 管理系统（linkvpn）
 
 
 ![login](/docs/images/login.png)
 
-基于 Web 的 OpenVPN 服务端管理面板：通过浏览器完成 PKI 初始化、用户与证书管理、服务端参数配置、连接记录与日志查看；支持账号密码认证（SQLite + bcrypt），支持 Docker 一键部署与可选客户端镜像。
+基于 Web 的 OpenVPN 服务端管理系统：通过浏览器完成 PKI 初始化、用户与证书管理、服务端参数配置、连接记录与日志查看；支持账号密码认证（SQLite + bcrypt），支持 Docker 一键部署与可选客户端镜像。
 
 ---
 
@@ -101,7 +101,7 @@
 
 ### 4.3 OpenVPN 客户端
 
-- **桌面/手机**：使用面板下载的 `.ovpn`，连接时按提示输入 VPN 用户名与密码。
+- **桌面/手机**：使用系统下载的 `.ovpn`，连接时按提示输入 VPN 用户名与密码。
 - **Docker 客户端**：使用本项目提供的 `linkvpnclient` 镜像，挂载 `.ovpn` 与可选 `auth.txt`（用户名/密码文件），详见 `linkvpnclient/README.md`。
 
 ```shell
