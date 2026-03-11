@@ -122,7 +122,7 @@ OpenVPN 默认：UDP 1194；可通过「OpenVPN 参数配置」或直接改 `ser
 ---
 
 ## 六、系统截图
-![首页](../docs/images/home.png)
+![首页](/docs/images/home.png)
 ![login](../docs/images/login.png)
 ![user](../docs/images/user.png)
 ![log](../docs/images/log.png)
