@@ -1,0 +1,40 @@
+# Mac 上执行: goreleaser build --snapshot --clean
+# 产出: dist/ 下 Linux amd64 二进制（用于 Docker；本项目仅支持 Linux 部署）
+version: 2
+project_name: server
+
+builds:
+  - id: server
+    main: ./cmd/server
+    binary: server
+    goos:
+      - linux
+    goarch:
+      - amd64
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+
+  - id: authcheck
+    main: ./cmd/authcheck
+    binary: authcheck
+    goos:
+      - linux
+    goarch:
+      - amd64
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+
+archives:
+  - id: default
+    ids:
+      - server
+      - authcheck
+    name_template: "server_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    formats:
+      - tar.gz
+    files:
+      - README*

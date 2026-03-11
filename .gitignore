@@ -1,0 +1,12 @@
+# 打包产物（总目录 build/ 下含 bin/、dist/）
+/build/bin/
+/build/dist/
+/dist/
+/web/dist/
+# 前端
+web/node_modules/
+
+# 本地/IDE
+.idea/
+*.swp
+*.swo

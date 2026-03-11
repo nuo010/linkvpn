@@ -1,0 +1,9 @@
+.git
+.idea
+web/node_modules
+# 不要忽略 web/dist、bin/server-linux，预打包镜像需要它们
+*.db
+*.ovpn
+.env
+*.md
+!README.md

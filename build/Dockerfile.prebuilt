@@ -1,0 +1,36 @@
+# 使用「本地已打包好的前端 + 后端」打镜像，不在镜像里编译任何东西。
+# 构建前需具备（当前目录下）：
+#   - ./server      后端主服务二进制（Linux 下可执行）
+#   - ./authcheck   账号密码校验二进制（Linux 下可执行）
+#   - ./dist/       前端构建产物（cd web && npm run build 会输出到 dist/）
+
+FROM debian:bookworm-slim
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    openvpn \
+    ca-certificates \
+    easy-rsa \
+    tzdata \
+    && rm -rf /var/lib/apt/lists/*
+
+# 设置容器时区为 Asia/Shanghai，保证 OpenVPN 与面板日志时间与国内时间一致
+ENV TZ=Asia/Shanghai
+RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo "Asia/Shanghai" > /etc/timezone
+
+RUN mkdir -p /etc/openvpn/easy-rsa && cp -r /usr/share/easy-rsa/* /etc/openvpn/easy-rsa/
+
+WORKDIR /app
+COPY server ./server
+COPY authcheck /usr/local/bin/authcheck
+RUN chmod +x ./server /usr/local/bin/authcheck
+
+COPY dist ./web
+COPY start.sh ./start.sh
+RUN chmod +x ./start.sh
+
+ENV VPN_BASE_PATH=/etc/openvpn \
+    HTTP_PORT=8789 \
+    STATIC_DIR=/app/web \
+    ADMIN_USER=admin \
+    ADMIN_PASS=admin
+
+CMD ["/app/start.sh"]
