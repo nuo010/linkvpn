@@ -1,5 +1,8 @@
 # OpenVPN 管理面板（linkvpn）
 
+
+![login](/docs/images/login.png)
+
 基于 Web 的 OpenVPN 服务端管理面板：通过浏览器完成 PKI 初始化、用户与证书管理、服务端参数配置、连接记录与日志查看；支持账号密码认证（SQLite + bcrypt），支持 Docker 一键部署与可选客户端镜像。
 
 ---
@@ -122,13 +125,13 @@ OpenVPN 默认：UDP 1194；可通过「OpenVPN 参数配置」或直接改 `ser
 ---
 
 ## 六、系统截图
+![login](/docs/images/login.png)
 ![首页](/docs/images/home.png)
-![login](../docs/images/login.png)
-![user](../docs/images/user.png)
-![log](../docs/images/log.png)
-![log2](../docs/images/log2.png)
-![log3](../docs/images/log3.png)
-![log4](../docs/images/log4.png)
+![user](/docs/images/user.png)
+![log](/docs/images/log.png)
+![log2](/docs/images/log2.png)
+![log3](/docs/images/log3.png)
+![log4](/docs/images/log4.png)
 ## 六、许可证与免责
 
 本项目仅供学习与自建使用。使用 OpenVPN 时请遵守当地法律法规与网络政策。生产环境请务必修改默认管理员密码与 `JWT_SECRET`，并做好备份与权限控制。
