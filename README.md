@@ -87,26 +87,26 @@
         --device /dev/net/tun \
         --cap-add=NET_ADMIN \
         --restart unless-stopped \
-        linkvpn:latest
+        linkvpn:1.0
    ```
 
 2. **首次启动**：  
-   将数据卷挂载到 `/etc/openvpn`（如 `openvpn-data`）。若挂载目录为空，容器内 `start.sh` 会自动初始化 easy-rsa、生成 CA 与服务端证书、创建默认 `server.conf`（含账号密码认证配置）。
+   将数据卷挂载到 `/etc/openvpn`。若挂载目录为空，容器内 `start.sh` 会自动初始化 easy-rsa、生成 CA 与服务端证书、创建默认 `server.conf`（含账号密码认证配置）。
 
 3. **访问面板**：  
    `http://<服务器IP>:8789`。默认管理员账号/密码见环境变量 `ADMIN_USER` / `ADMIN_PASS`（如 `admin` / `admin`），生产环境请修改并设置 `JWT_SECRET`。
 
 4. **首次使用**：  
-   进入系统后按提示完成「客户端下载服务器地址与端口」配置；在用户管理中创建 VPN 用户，下载 `.ovpn` 即可在客户端使用（配置已含 `auth-user-pass`，会提示输入用户名和密码）。
+   进入系统后按提示完成「客户端下载服务器地址与端口」配置。
 
 ### 4.3 OpenVPN 客户端
 
 - **桌面/手机**：使用系统下载的 `.ovpn`，连接时按提示输入 VPN 用户名与密码。
-- **Docker 客户端**：使用本项目提供的 `linkvpnclient` 镜像，挂载 `.ovpn` 与可选 `auth.txt`（用户名/密码文件），详见 `linkvpnclient/README.md`。
+- **Docker 客户端**：使用本项目提供的 `linkvpnclient` 镜像，挂载 `.ovpn` 与 `auth.txt`（用户名/密码文件）, `auth.txt` 内容格式为第一行账号第二行密码。
 
 ```shell
 cd linkvpnclient
-docker run -d --name linkvpnclient   --network host --restart=always --cap-add=NET_ADMIN   --device /dev/net/tun:/dev/net/tun   -v "$(pwd)/xxxx.ovpn:/config/client.ovpn"   -v "$(pwd)/auth.txt:/config/auth.txt"   linkvpnclient:latest
+docker run -d --name linkvpnclient   --network host --restart=always --cap-add=NET_ADMIN   --device /dev/net/tun:/dev/net/tun   -v "$(pwd)/xxxx.ovpn:/config/client.ovpn"   -v "$(pwd)/auth.txt:/config/auth.txt"   linkvpnclient:1.0
 ```
 
 ## 五、配置与端口
