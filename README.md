@@ -105,8 +105,15 @@
 - **Docker 客户端**：使用本项目提供的 `linkvpnclient` 镜像，挂载 `.ovpn` 与 `auth.txt`（用户名/密码文件）, `auth.txt` 内容格式为第一行账号第二行密码。
 
 ```shell
-cd linkvpnclient
-docker run -d --name linkvpnclient   --network host --restart=always --cap-add=NET_ADMIN   --device /dev/net/tun:/dev/net/tun   -v "$(pwd)/xxxx.ovpn:/config/client.ovpn"   -v "$(pwd)/auth.txt:/config/auth.txt"   liguanglong1234/linkvpnclient:1.0
+    cd linkvpnclient
+    docker run -d --name linkvpnclient \
+          --network host \
+          --restart=always \
+          --cap-add=NET_ADMIN \
+          --device /dev/net/tun:/dev/net/tun \
+          -v "$(pwd)/xxxx.ovpn:/config/client.ovpn" \
+          -v "$(pwd)/auth.txt:/config/auth.txt" \
+          liguanglong1234/linkvpnclient:1.0
 ```
 
 ## 五、配置与端口
