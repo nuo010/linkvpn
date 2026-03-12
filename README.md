@@ -87,7 +87,7 @@
         --device /dev/net/tun \
         --cap-add=NET_ADMIN \
         --restart unless-stopped \
-        linkvpn:1.0
+        liguanglong1234/linkvpn:1.0
    ```
 
 2. **首次启动**：  
@@ -106,7 +106,7 @@
 
 ```shell
 cd linkvpnclient
-docker run -d --name linkvpnclient   --network host --restart=always --cap-add=NET_ADMIN   --device /dev/net/tun:/dev/net/tun   -v "$(pwd)/xxxx.ovpn:/config/client.ovpn"   -v "$(pwd)/auth.txt:/config/auth.txt"   linkvpnclient:1.0
+docker run -d --name linkvpnclient   --network host --restart=always --cap-add=NET_ADMIN   --device /dev/net/tun:/dev/net/tun   -v "$(pwd)/xxxx.ovpn:/config/client.ovpn"   -v "$(pwd)/auth.txt:/config/auth.txt"   liguanglong1234/linkvpnclient:1.0
 ```
 
 ## 五、配置与端口
