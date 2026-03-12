@@ -76,7 +76,7 @@
 1. **使用预构建镜像（若已有）：**
 
    ```bash
-   # 克隆或进入项目目录
+   # 项目目录
    cd linkvpn
    
    docker run -d --name linkvpn \
@@ -105,6 +105,7 @@
 - **Docker 客户端**：使用本项目提供的 `linkvpnclient` 镜像，挂载 `.ovpn` 与 `auth.txt`（用户名/密码文件）, `auth.txt` 内容格式为第一行账号第二行密码。
 
 ```shell
+    # 项目目录
     cd linkvpnclient
     docker run -d --name linkvpnclient \
           --network host \
