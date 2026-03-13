@@ -77,6 +77,7 @@
 
    ```bash
    # 项目目录
+   # 镜像架构 默认amd
    cd linkvpn
    
    docker run -d --name linkvpn \
@@ -106,6 +107,7 @@
 
 ```shell
     # 项目目录
+    # 镜像架构 1.1-amd 1.1-arm
     cd linkvpnclient
     docker run -d --name linkvpnclient \
           --network host \
