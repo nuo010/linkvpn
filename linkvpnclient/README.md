@@ -22,8 +22,9 @@ cd linkvpnclient
 docker build -t linkvpnclient:latest .
 
 # 如需推送 Docker Hub:
-# docker tag linkvpnclient:latest yourname/linkvpnclient:latest
-# docker push yourname/linkvpnclient:latest
+
+# docker tag linkvpnclient:latest liguanglong1234/linkvpnclient:latest
+# docker push liguanglong1234/linkvpnclient:latest
 ```
 
 ## 三、使用方式
