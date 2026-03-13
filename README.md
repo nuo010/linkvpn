@@ -114,7 +114,7 @@
           --device /dev/net/tun:/dev/net/tun \
           -v "$(pwd)/xxxx.ovpn:/config/client.ovpn" \
           -v "$(pwd)/auth.txt:/config/auth.txt" \
-          liguanglong1234/linkvpnclient:1.0
+          liguanglong1234/linkvpnclient:1.1-amd
 ```
 
 ## 五、配置与端口
