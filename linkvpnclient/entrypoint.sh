@@ -4,6 +4,9 @@ set -e
 OVPN_FILE="${OVPN_FILE:-/config/client.ovpn}"
 AUTH_FILE="${AUTH_FILE:-/config/auth.txt}"
 
+echo "[linkvpnclient] OpenVPN 版本:"
+openvpn --version | head -n 1 || echo "[linkvpnclient] 无法获取 OpenVPN 版本"
+
 if [ ! -f "$OVPN_FILE" ]; then
   echo "[linkvpnclient] ERROR: 未找到配置文件: $OVPN_FILE" >&2
   echo "请通过挂载方式提供 .ovpn，例如:" >&2
