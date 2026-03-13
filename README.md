@@ -71,9 +71,9 @@
 - 若 Docker 部署：Docker、Docker Compose；宿主机需开放 UDP 1194（OpenVPN）与 HTTP 8789（面板）。
 - 若本地运行：Go 1.21+、Node 18+（前端开发）、OpenVPN、easy-rsa（或由 Docker 提供）。
 
-### 4.2 Docker 部署（推荐）
+### 4.2 Docker 服务端部署
 
-1. **使用预构建镜像（若已有）：**
+1. **启动容器：**
 
    ```bash
    # 项目目录
@@ -99,7 +99,7 @@
 4. **首次使用**：  
    进入系统后按提示完成「客户端下载服务器地址与端口」配置。
 
-### 4.3 OpenVPN 客户端
+### 4.3 Docker 客户端部署
 
 - **桌面/手机**：使用系统下载的 `.ovpn`，连接时按提示输入 VPN 用户名与密码。
 - **Docker 客户端**：使用本项目提供的 `linkvpnclient` 镜像，挂载 `.ovpn` 与 `auth.txt`（用户名/密码文件）, `auth.txt` 内容格式为第一行账号第二行密码。
