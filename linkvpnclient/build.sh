@@ -2,9 +2,9 @@
 set -eu
 
 # 本地镜像名
-LOCAL_IMAGE_NAME="linkvpnclient"
+LOCAL_IMAGE_NAME="xxgl"
 # Docker Hub 仓库名
-REMOTE_IMAGE_NAME="liguanglong1234/linkvpnclient"
+REMOTE_IMAGE_NAME="xxgl/linkvpnclient"
 
 VERSION="${1:-}"
 if [ -z "$VERSION" ]; then
