@@ -1,0 +1,17 @@
+## linkvpn 运行配置（镜像内默认）
+## 说明：
+## - 服务启动时若未设置 CONFIG_FILE，会自动尝试读取：
+##   /etc/openvpn/config.yaml（以及 config.yml / panel.yaml / panel.yml）
+## - 如果你在运行容器时挂载了 /etc/openvpn，本文件会被挂载目录覆盖；
+##   你可以把自己的配置文件放到挂载目录的 /etc/openvpn/config.yaml。
+
+http_port: 8789
+vpn_base_path: /etc/openvpn
+status_file_path: /etc/openvpn/openvpn-status.log
+log_file_path: /etc/openvpn/openvpn.log
+static_dir: /app/web
+server_name: OpenVPN-Server
+jwt_secret: change-me-in-production
+admin_user: admin
+admin_pass: admin
+database_path: /etc/openvpn/panel.db

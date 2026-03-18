@@ -18,6 +18,9 @@ RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo "Asia/Shangh
 
 RUN mkdir -p /etc/openvpn/easy-rsa && cp -r /usr/share/easy-rsa/* /etc/openvpn/easy-rsa/
 
+# 默认运行配置（可被挂载目录覆盖）
+COPY config.yaml /etc/openvpn/config.yaml
+
 WORKDIR /app
 COPY server ./server
 COPY authcheck /usr/local/bin/authcheck

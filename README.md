@@ -125,12 +125,22 @@
 |-----------------|----------------|--------|
 | `VPN_BASE_PATH` | OpenVPN 工作目录 | `/etc/openvpn` |
 | `HTTP_PORT`     | 面板 HTTP 端口 | `8789` |
+| `CONFIG_FILE`   | 运行配置文件路径（YAML） | 空（不显式指定） |
 | `STATIC_DIR`    | 前端静态目录   | `/app/web` |
 | `ADMIN_USER` / `ADMIN_PASS` | 面板管理员账号密码 | `admin` / `admin` |
 | `JWT_SECRET`    | JWT 签名密钥   | 建议生产环境设置 |
 | `DATABASE_PATH` | SQLite 库路径  | `$VPN_BASE_PATH/data/panel.db` |
 
 OpenVPN 默认：UDP 1194；可通过「OpenVPN 参数配置」或直接改 `server.conf` 修改。
+
+### 5.1 运行配置文件（YAML）
+
+除环境变量外，也可以使用一个 YAML 配置文件来配置面板运行信息（例如面板端口、静态目录、OpenVPN 工作目录等）。
+
+- 示例文件：`config.example.yaml`
+- 默认位置：容器内 `/etc/openvpn/config.yaml`（或 `config.yml` / `panel.yaml` / `panel.yml`），存在即自动加载
+- 显式指定：启动时设置 `CONFIG_FILE=/path/to/config.yaml`
+- 优先级：**环境变量优先级最高**，会覆盖配置文件中的同名字段。
 
 ---
 
