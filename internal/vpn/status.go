@@ -2,10 +2,13 @@ package vpn
 
 import (
 	"bufio"
+	"bytes"
 	"net"
 	"os"
+	"os/exec"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"singleOpenVpn/internal/model"
@@ -253,4 +256,43 @@ func FindOpenVPNPID() (int, bool) {
 		}
 	}
 	return 0, false
+}
+
+var (
+	openvpnVersionOnce sync.Once
+	openvpnVersion     string
+)
+
+// GetOpenVPNVersion 返回 openvpn --version 的第一行（带版本号），失败返回空串。
+// 为了避免频繁 exec，这里做了进程内缓存（只取一次）。
+func GetOpenVPNVersion() string {
+	openvpnVersionOnce.Do(func() {
+		bin, err := exec.LookPath("openvpn")
+		if err != nil || bin == "" {
+			// 非交互式启动时 PATH 可能不含 /usr/sbin 等目录，兜底常见位置
+			for _, p := range []string{
+				"/usr/sbin/openvpn",
+				"/usr/local/sbin/openvpn",
+				"/usr/bin/openvpn",
+				"/usr/local/bin/openvpn",
+			} {
+				if _, statErr := os.Stat(p); statErr == nil {
+					bin = p
+					break
+				}
+			}
+		}
+		if bin == "" {
+			return
+		}
+
+		out, err := exec.Command(bin, "--version").Output()
+		if err != nil || len(out) == 0 {
+			return
+		}
+		// 例：OpenVPN 2.6.8 x86_64-pc-linux-gnu [SSL (OpenSSL)] ...
+		line := bytes.SplitN(out, []byte{'\n'}, 2)[0]
+		openvpnVersion = strings.TrimSpace(string(line))
+	})
+	return openvpnVersion
 }

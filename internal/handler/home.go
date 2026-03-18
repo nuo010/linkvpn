@@ -24,6 +24,7 @@ type HomeStats struct {
 	OnlineCount    int               `json:"online_count"`
 	OpenVPNRunning bool              `json:"openvpn_running"`
 	OpenVPNPID     int               `json:"openvpn_pid"`
+	OpenVPNVersion string            `json:"openvpn_version"`
 	TotalBytesRecv int64             `json:"total_bytes_recv"`
 	TotalBytesSent int64             `json:"total_bytes_sent"`
 	Top10Upload    []UserTrafficItem `json:"top10_upload"`
@@ -102,6 +103,7 @@ func GetHome(db *gorm.DB, cfg *config.Config) gin.HandlerFunc {
 			stats.OpenVPNRunning = true
 			stats.OpenVPNPID = pid
 		}
+		stats.OpenVPNVersion = vpn.GetOpenVPNVersion()
 
 		c.JSON(http.StatusOK, stats)
 	}

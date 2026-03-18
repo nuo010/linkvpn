@@ -51,6 +51,9 @@
           <span v-if="stats.openvpn_running && stats.openvpn_pid" class="metric-sub-line">
             进程 PID：{{ stats.openvpn_pid }}
           </span>
+          <span v-if="stats.openvpn_version" class="metric-sub-line">
+            版本：{{ stats.openvpn_version }}
+          </span>
           <span class="metric-sub-line path-dd">工作目录：{{ stats.base_path || '-' }}</span>
         </div>
       </div>
@@ -111,6 +114,7 @@ const defaultStats = () => ({
   online_count: 0,
   openvpn_running: false,
   openvpn_pid: 0,
+  openvpn_version: '',
   total_bytes_recv: 0,
   total_bytes_sent: 0,
   top10_upload: [],
