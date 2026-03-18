@@ -292,7 +292,19 @@ func GetOpenVPNVersion() string {
 		}
 		// 例：OpenVPN 2.6.8 x86_64-pc-linux-gnu [SSL (OpenSSL)] ...
 		line := bytes.SplitN(out, []byte{'\n'}, 2)[0]
-		openvpnVersion = strings.TrimSpace(string(line))
+		openvpnVersion = parseOpenVPNVersionLine(strings.TrimSpace(string(line)))
 	})
 	return openvpnVersion
+}
+
+func parseOpenVPNVersionLine(line string) string {
+	// 典型输出：
+	// OpenVPN 2.6.3 x86_64-pc-linux-gnu [SSL (OpenSSL)] ...
+	// 我们只展示版本号（2.6.3），避免 UI 过长。
+	fields := strings.Fields(line)
+	if len(fields) >= 2 && strings.EqualFold(fields[0], "openvpn") {
+		return fields[1]
+	}
+	// 兜底：无法解析时返回整行（至少有信息可用）
+	return line
 }
