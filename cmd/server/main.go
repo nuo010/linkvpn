@@ -21,10 +21,6 @@ func main() {
 	if err := ensureVPNBaseDir(cfg.VPNBasePath); err != nil {
 		log.Fatalf("创建 VPN 目录失败: %v", err)
 	}
-	if err := vpn.RepairCCDFilesTrailingNewline(cfg.VPNBasePath); err != nil {
-		log.Printf("修复 CCD 文件末尾换行时出错: %v", err)
-	}
-
 	// 挂载目录为空（无 CA）时自动初始化 PKI 并启动 OpenVPN，无需手动点击「初始化 PKI」
 	if vpn.IsPKIEmpty(cfg.VPNBasePath) {
 		log.Print("检测到挂载目录未初始化 PKI，正在自动创建 CA 与服务端证书…")
