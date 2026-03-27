@@ -125,8 +125,11 @@
           <el-checkbox v-model="form.persist_key">persist-key</el-checkbox>
           <el-checkbox v-model="form.persist_tun">persist-tun</el-checkbox>
           <el-checkbox v-model="form.explicit_exit_notify">explicit-exit-notify</el-checkbox>
-          <el-checkbox v-model="form.auto_apply_to_config">保存参数时自动写入 server.conf</el-checkbox>
         </div>
+        <div class="field-help inline-help">
+          `persist-key`：重连时尽量保留密钥状态；`persist-tun`：重连时尽量保留虚拟网卡；`explicit-exit-notify`：UDP 断开时主动通知服务端。
+        </div>
+        <div class="field-help inline-help">点击“保存表单配置”时会默认同时写入 `server.conf`。</div>
       </el-form>
 
       <div class="config-actions">
@@ -249,11 +252,9 @@ async function loadFile() {
 
 async function saveParams() {
   try {
-    await client.post('/config/params', { ...form.value })
-    ElMessage.success(form.value.auto_apply_to_config ? '表单配置已保存并写入 server.conf' : '表单配置已保存')
-    if (form.value.auto_apply_to_config) {
-      await loadFile()
-    }
+    await client.post('/config/params', { ...form.value, auto_apply_to_config: true })
+    ElMessage.success('表单配置已保存并写入 server.conf')
+    await loadFile()
   } catch (e) {
     ElMessage.error(e.response?.data?.error || '保存失败')
   }
@@ -342,6 +343,10 @@ onMounted(async () => {
   color: var(--muted);
   font-size: 0.82rem;
   line-height: 1.5;
+}
+.inline-help {
+  margin-top: 0.1rem;
+  margin-bottom: 0.5rem;
 }
 .config-actions {
   display: flex;
