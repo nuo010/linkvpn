@@ -212,8 +212,9 @@ func SetOpenVPNParams(db *gorm.DB, cfg *config.Config) gin.HandlerFunc {
 		}
 		if p.AutoApplyToConfig {
 			content := vpn.BuildServerConfigFromParams(
-				cfg.VPNBasePath, p.Port, p.Protocol, p.MaxConnections, p.Subnet, p.Management,
-				p.PushDNS1, p.PushDNS2, p.VPNGateway, p.IPv6, p.IPv6Subnet,
+				cfg.VPNBasePath, p.Port, p.Protocol, p.Device, p.Topology, p.MaxConnections, p.Subnet, p.PushRoutes, p.Management,
+				p.PushDNS1, p.PushDNS2, p.Keepalive, p.Cipher, p.Auth, p.RunUser, p.RunGroup, p.Verb,
+				p.VPNGateway, p.ClientToClient, p.IPv6, p.PersistKey, p.PersistTun, p.ExplicitExitNotify, p.IPv6Subnet,
 			)
 			if err := vpn.WriteServerConfig(cfg.VPNBasePath, content); err != nil {
 				c.JSON(http.StatusOK, gin.H{"message": "参数已保存，但写入 server.conf 失败: " + err.Error()})
@@ -234,8 +235,9 @@ func ApplyOpenVPNParams(db *gorm.DB, cfg *config.Config) gin.HandlerFunc {
 			_ = json.Unmarshal([]byte(sc.Value), &p)
 		}
 		content := vpn.BuildServerConfigFromParams(
-			cfg.VPNBasePath, p.Port, p.Protocol, p.MaxConnections, p.Subnet, p.Management,
-			p.PushDNS1, p.PushDNS2, p.VPNGateway, p.IPv6, p.IPv6Subnet,
+			cfg.VPNBasePath, p.Port, p.Protocol, p.Device, p.Topology, p.MaxConnections, p.Subnet, p.PushRoutes, p.Management,
+			p.PushDNS1, p.PushDNS2, p.Keepalive, p.Cipher, p.Auth, p.RunUser, p.RunGroup, p.Verb,
+			p.VPNGateway, p.ClientToClient, p.IPv6, p.PersistKey, p.PersistTun, p.ExplicitExitNotify, p.IPv6Subnet,
 		)
 		if err := vpn.WriteServerConfig(cfg.VPNBasePath, content); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
