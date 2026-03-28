@@ -38,7 +38,7 @@ func EnsurePKI(basePath, serverName string) error {
 	}
 	serverConfPath := filepath.Join(basePath, "server.conf")
 	if _, err := os.Stat(serverConfPath); os.IsNotExist(err) {
-		content := DefaultServerConfig(1194, ServerVPNCIDR, basePath)
+		content := DefaultServerConfig(basePath)
 		if err := WriteServerConfig(basePath, content); err != nil {
 			return err
 		}

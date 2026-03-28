@@ -44,9 +44,13 @@
             <el-input v-model="form.max_connections" type="number" min="1" placeholder="200" />
           </el-form-item>
 
-          <el-form-item label="保活参数（keepalive）">
-            <el-input v-model="form.keepalive" placeholder="10 120" />
-            <div class="field-help">对应 `keepalive 10 120`。前一个数表示心跳间隔秒数，后一个数表示超时重启秒数。</div>
+          <el-form-item label="心跳间隔（秒）">
+            <el-input v-model="form.keepalive_ping" type="number" min="1" placeholder="10" />
+          </el-form-item>
+
+          <el-form-item label="超时重启（秒）">
+            <el-input v-model="form.keepalive_timeout" type="number" min="1" placeholder="120" />
+            <div class="field-help">这两个值会生成 `keepalive ping timeout`，例如 `keepalive 10 120`。</div>
           </el-form-item>
         </div>
 
@@ -66,12 +70,16 @@
         </div>
 
         <el-form-item label="推送路由">
-          <el-input
-            v-model="form.push_routes"
-            type="textarea"
-            :rows="4"
-            placeholder="每行一个 CIDR，例如&#10;192.168.10.0/24&#10;172.16.0.0/16"
-          />
+          <div class="routes-editor">
+            <div v-for="(route, index) in form.push_routes" :key="index" class="route-row">
+              <el-input v-model="form.push_routes[index]" placeholder="如 192.168.10.0/24" />
+              <el-button @click="removeRoute(index)">删除</el-button>
+            </div>
+            <div class="route-actions">
+              <el-button @click="addRoute">新增路由</el-button>
+            </div>
+            <div class="field-help">每条推送路由填写一个 CIDR，例如 `192.168.10.0/24`。</div>
+          </div>
         </el-form-item>
 
         <div class="switch-row">
@@ -169,14 +177,15 @@ const form = ref({
   topology: 'subnet',
   max_connections: '200',
   subnet: '10.8.8.0/24',
-  push_routes: '',
+  push_routes: [],
   push_dns1: '8.8.8.8',
   push_dns2: '2001:4860:4860::8888',
   vpn_gateway: false,
   client_to_client: true,
   ipv6: false,
   ipv6_subnet: 'fd00:8::/64',
-  keepalive: '10 120',
+  keepalive_ping: '10',
+  keepalive_timeout: '120',
   cipher: 'AES-256-GCM',
   auth: 'SHA256',
   run_user: 'nobody',
@@ -189,6 +198,7 @@ const form = ref({
 })
 
 function normalizeParams(data = {}) {
+  const keepalive = String(data.keepalive || '10 120').trim().split(/\s+/)
   return {
     port: String(data.port ?? 1194),
     protocol: data.protocol === 'tcp' ? 'tcp' : 'udp',
@@ -196,14 +206,15 @@ function normalizeParams(data = {}) {
     topology: data.topology === 'net30' ? 'net30' : 'subnet',
     max_connections: String(data.max_connections ?? 200),
     subnet: data.subnet || '10.8.8.0/24',
-    push_routes: data.push_routes || '',
+    push_routes: String(data.push_routes || '').split('\n').map((line) => line.trim()).filter(Boolean),
     push_dns1: data.push_dns1 || '',
     push_dns2: data.push_dns2 || '',
     vpn_gateway: !!data.vpn_gateway,
     client_to_client: data.client_to_client !== false,
     ipv6: !!data.ipv6,
     ipv6_subnet: data.ipv6_subnet || 'fd00:8::/64',
-    keepalive: data.keepalive || '10 120',
+    keepalive_ping: keepalive[0] || '10',
+    keepalive_timeout: keepalive[1] || '120',
     cipher: data.cipher || 'AES-256-GCM',
     auth: data.auth || 'SHA256',
     run_user: data.run_user || 'nobody',
@@ -219,6 +230,74 @@ function normalizeParams(data = {}) {
 function resetParams() {
   form.value = normalizeParams()
   ElMessage.success('已恢复默认参数，保存后才会写入服务器')
+}
+
+function addRoute() {
+  form.value.push_routes.push('')
+}
+
+function removeRoute(index) {
+  form.value.push_routes.splice(index, 1)
+}
+
+function isIPv4(value) {
+  const parts = value.split('.')
+  if (parts.length !== 4) return false
+  return parts.every((part) => /^\d+$/.test(part) && Number(part) >= 0 && Number(part) <= 255)
+}
+
+function isIPv6(value) {
+  return value.includes(':')
+}
+
+function isCIDR(value) {
+  const parts = value.split('/')
+  if (parts.length !== 2) return false
+  const prefix = Number(parts[1])
+  if (!Number.isInteger(prefix)) return false
+  return (isIPv4(parts[0]) && prefix >= 0 && prefix <= 32) || (isIPv6(parts[0]) && prefix >= 0 && prefix <= 128)
+}
+
+function validateForm() {
+  const port = Number(form.value.port)
+  if (!Number.isInteger(port) || port < 1 || port > 65535) {
+    return '端口必须为 1-65535 的整数'
+  }
+  const maxConnections = Number(form.value.max_connections)
+  if (!Number.isInteger(maxConnections) || maxConnections < 1) {
+    return '最大连接数必须为大于 0 的整数'
+  }
+  const subnet = (form.value.subnet || '').trim()
+  if (!subnet || (!isCIDR(subnet) && !isIPv4(subnet))) {
+    return '虚拟网段格式错误，应为如 10.8.8.0/24'
+  }
+  const keepalive = [form.value.keepalive_ping, form.value.keepalive_timeout].map((v) => String(v || '').trim())
+  if (keepalive.some((n) => !/^\d+$/.test(n) || Number(n) <= 0)) {
+    return '保活参数必须为两个大于 0 的整数，如 10 120'
+  }
+  for (const [label, value] of [['推送 DNS 1', form.value.push_dns1], ['推送 DNS 2', form.value.push_dns2]]) {
+    const v = (value || '').trim()
+    if (v && !isIPv4(v) && !isIPv6(v)) {
+      return `${label}必须是合法的 IP 地址`
+    }
+  }
+  if (form.value.ipv6) {
+    const ipv6Subnet = (form.value.ipv6_subnet || '').trim()
+    if (!isCIDR(ipv6Subnet) || !isIPv6(ipv6Subnet.split('/')[0])) {
+      return 'IPv6 网段格式错误，应为如 fd00:8::/64'
+    }
+  }
+  const routes = (form.value.push_routes || []).map((line) => String(line || '').trim()).filter(Boolean)
+  for (const route of routes) {
+    if (!isCIDR(route)) {
+      return '推送路由每行必须是 CIDR，如 192.168.10.0/24'
+    }
+  }
+  const verb = Number(form.value.verb)
+  if (!Number.isInteger(verb) || verb < 0 || verb > 11) {
+    return '日志级别必须为 0-11 的整数'
+  }
+  return ''
 }
 
 async function loadParams() {
@@ -244,7 +323,18 @@ async function loadFile() {
 
 async function saveParams() {
   try {
-    const saveResp = await client.post('/config/params', { ...form.value, auto_apply_to_config: false })
+    const error = validateForm()
+    if (error) {
+      ElMessage.error(error)
+      return
+    }
+    const payload = {
+      ...form.value,
+      keepalive: `${String(form.value.keepalive_ping).trim()} ${String(form.value.keepalive_timeout).trim()}`,
+      push_routes: (form.value.push_routes || []).map((line) => String(line || '').trim()).filter(Boolean).join('\n'),
+      auto_apply_to_config: false,
+    }
+    const saveResp = await client.post('/config/params', payload)
     const applyResp = await client.post('/config/params/apply')
     await loadFile()
     const message = applyResp.data?.message || saveResp.data?.message || '表单配置已保存并写入 server.conf'
@@ -327,6 +417,22 @@ onMounted(async () => {
   font-size: 0.82rem;
   line-height: 1.5;
 }
+.routes-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+.route-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+.route-row :deep(.el-input) {
+  flex: 1;
+}
+.route-actions {
+  display: flex;
+}
 .inline-help {
   margin-top: 0.1rem;
   margin-bottom: 0.5rem;
@@ -376,6 +482,10 @@ onMounted(async () => {
 @media (max-width: 960px) {
   .restart-service-btn {
     margin-left: 0;
+  }
+  .route-row {
+    flex-direction: column;
+    align-items: stretch;
   }
 }
 </style>

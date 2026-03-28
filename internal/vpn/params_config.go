@@ -3,15 +3,17 @@ package vpn
 import (
 	"fmt"
 	"net"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	"singleOpenVpn/internal/model"
 )
 
 // BuildServerConfigFromParams 根据面板参数生成 server.conf 内容。
 // 所有写入的路径均为绝对路径（ca/cert/key/dh、client-config-dir、status、log-append、ifconfig-pool-persist）。
 // vpnBase 为 VPN 工作目录（如 /etc/openvpn），空则 PKI/client-config-dir 等使用 /etc/openvpn，status/log 使用 /var/log。
-// subnet 可为 "10.8.8.0/24" 或 "10.8.8.0"，将转为 server x.x.x.x 255.255.255.0
 func BuildServerConfigFromParams(
 	vpnBase, port, proto, device, topology, maxClients, subnet, pushRoutes, management,
 	pushDNS1, pushDNS2, keepalive, cipherName, authName, runUser, runGroup, verb string,
@@ -26,10 +28,7 @@ func BuildServerConfigFromParams(
 	if proto != "tcp" && proto != "udp" {
 		proto = "udp"
 	}
-	serverNet := parseSubnetToServer(subnet) // "10.8.8.0"
-	if serverNet == "" {
-		serverNet = ServerVPNCIDR
-	}
+	serverNet, serverMask := parseSubnetToServer(subnet)
 	device = strings.ToLower(strings.TrimSpace(device))
 	if device != "tap" && device != "tun" {
 		device = "tun"
@@ -72,7 +71,7 @@ func BuildServerConfigFromParams(
 	b.WriteString("key " + filepath.Join(vpnBasePKI, "easy-rsa", "pki", "private", "server.key") + "\n")
 	b.WriteString("dh " + filepath.Join(vpnBasePKI, "easy-rsa", "pki", "dh.pem") + "\n\n")
 	b.WriteString(fmt.Sprintf("topology %s\n", topology))
-	b.WriteString(fmt.Sprintf("server %s 255.255.255.0\n", serverNet))
+	b.WriteString(fmt.Sprintf("server %s %s\n", serverNet, serverMask))
 	if maxClients != "" {
 		if n, _ := strconv.Atoi(maxClients); n > 0 {
 			b.WriteString(fmt.Sprintf("max-clients %d\n", n))
@@ -135,16 +134,21 @@ func BuildServerConfigFromParams(
 	return b.String()
 }
 
-// parseSubnetToServer 从 "10.8.8.0/24" 或 "10.8.8.0" 得到 "10.8.8.0"
-func parseSubnetToServer(s string) string {
+// parseSubnetToServer 从 "10.8.8.0/24" 或 "10.8.8.0" 得到网络地址和掩码。
+func parseSubnetToServer(s string) (string, string) {
 	s = strings.TrimSpace(s)
 	if s == "" {
-		return ""
+		return ServerVPNCIDR, "255.255.255.0"
 	}
-	if idx := strings.Index(s, "/"); idx > 0 {
-		return strings.TrimSpace(s[:idx])
+	if strings.Contains(s, "/") {
+		if ip, ipNet, err := net.ParseCIDR(s); err == nil && ipNet != nil {
+			return ip.Mask(ipNet.Mask).String(), net.IP(ipNet.Mask).String()
+		}
+		if idx := strings.Index(s, "/"); idx > 0 {
+			return strings.TrimSpace(s[:idx]), "255.255.255.0"
+		}
 	}
-	return s
+	return s, "255.255.255.0"
 }
 
 func buildPushRouteLines(raw string) []string {
@@ -192,4 +196,19 @@ func formatManagementDirective(raw string) string {
 		}
 	}
 	return "management " + raw
+}
+
+func DefaultServerConfig(basePath string) string {
+	p := model.DefaultOpenVPNParams()
+	return BuildServerConfigFromParams(
+		basePath, p.Port, p.Protocol, p.Device, p.Topology, p.MaxConnections, p.Subnet, p.PushRoutes, p.Management,
+		p.PushDNS1, p.PushDNS2, p.Keepalive, p.Cipher, p.Auth, p.RunUser, p.RunGroup, p.Verb,
+		p.VPNGateway, p.ClientToClient, p.IPv6, p.PersistKey, p.PersistTun, p.ExplicitExitNotify, p.IPv6Subnet,
+	)
+}
+
+// WriteServerConfig 将服务端配置写入 basePath 下的 server.conf
+func WriteServerConfig(basePath, content string) error {
+	p := filepath.Join(basePath, "server.conf")
+	return os.WriteFile(p, []byte(content), 0644)
 }

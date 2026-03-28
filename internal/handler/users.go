@@ -336,6 +336,9 @@ func DownloadClientConfig(db *gorm.DB, cfg *config.Config) gin.HandlerFunc {
 			}
 		}
 		proto := "udp"
+		device := "tun"
+		cipherName := "AES-256-GCM"
+		authName := "SHA256"
 		var paramsCfg model.ServerConfig
 		p := model.DefaultOpenVPNParams()
 		if err := db.Where("key = ?", model.OVPNParamsKey).First(&paramsCfg).Error; err == nil && paramsCfg.Value != "" {
@@ -343,8 +346,17 @@ func DownloadClientConfig(db *gorm.DB, cfg *config.Config) gin.HandlerFunc {
 			if strings.EqualFold(strings.TrimSpace(p.Protocol), "tcp") {
 				proto = "tcp"
 			}
+			if strings.EqualFold(strings.TrimSpace(p.Device), "tap") {
+				device = "tap"
+			}
+			if strings.TrimSpace(p.Cipher) != "" {
+				cipherName = strings.TrimSpace(p.Cipher)
+			}
+			if strings.TrimSpace(p.Auth) != "" {
+				authName = strings.TrimSpace(p.Auth)
+			}
 		}
-		ovpnPath, err := vpn.GenClientOVPN(cfg.VPNBasePath, u.Name, serverAddr, port, proto, u.RouteNopull)
+		ovpnPath, err := vpn.GenClientOVPN(cfg.VPNBasePath, u.Name, serverAddr, port, proto, device, cipherName, authName, u.RouteNopull)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "生成配置失败: " + err.Error()})
 			return

@@ -3,10 +3,12 @@ package handler
 import (
 	"encoding/json"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -73,7 +75,7 @@ func GetServerConfigFile(cfg *config.Config) gin.HandlerFunc {
 		content := string(data)
 		// 文件不存在或为空时返回默认配置，便于用户直接保存使用
 		if err != nil || len(content) == 0 || len(strings.TrimSpace(content)) == 0 {
-			content = vpn.DefaultServerConfig(1194, vpn.ServerVPNCIDR, cfg.VPNBasePath)
+			content = vpn.DefaultServerConfig(cfg.VPNBasePath)
 		}
 		c.JSON(http.StatusOK, gin.H{"content": content, "path": path})
 	}
@@ -114,8 +116,7 @@ func InitVPN(cfg *config.Config) gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "gen-server-cert: " + err.Error()})
 			return
 		}
-		port := 1194
-		content := vpn.DefaultServerConfig(port, vpn.ServerVPNCIDR, cfg.VPNBasePath)
+		content := vpn.DefaultServerConfig(cfg.VPNBasePath)
 		if err := vpn.WriteServerConfig(cfg.VPNBasePath, content); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
@@ -127,7 +128,7 @@ func InitVPN(cfg *config.Config) gin.HandlerFunc {
 // GetDefaultServerConfig 返回默认 server.conf 内容（用于「加载默认配置」）
 func GetDefaultServerConfig(cfg *config.Config) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		content := vpn.DefaultServerConfig(1194, vpn.ServerVPNCIDR, cfg.VPNBasePath)
+		content := vpn.DefaultServerConfig(cfg.VPNBasePath)
 		c.JSON(http.StatusOK, gin.H{"content": content})
 	}
 }
@@ -197,6 +198,10 @@ func SetOpenVPNParams(db *gorm.DB, cfg *config.Config) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "参数错误"})
 			return
 		}
+		if err := validateOpenVPNParams(&p); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
 		raw, err := json.Marshal(p)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "序列化失败"})
@@ -224,6 +229,126 @@ func SetOpenVPNParams(db *gorm.DB, cfg *config.Config) gin.HandlerFunc {
 		c.JSON(http.StatusOK, gin.H{"message": "已保存"})
 	}
 }
+
+func validateOpenVPNParams(p *model.OpenVPNParams) error {
+	if p == nil {
+		return nil
+	}
+	if port, err := strconv.Atoi(strings.TrimSpace(p.Port)); err != nil || port < 1 || port > 65535 {
+		return errInvalid("端口必须为 1-65535 的整数")
+	}
+	if strings.TrimSpace(p.MaxConnections) != "" {
+		if n, err := strconv.Atoi(strings.TrimSpace(p.MaxConnections)); err != nil || n < 1 {
+			return errInvalid("最大连接数必须为大于 0 的整数")
+		}
+	}
+	if err := validateCIDRorIPv4Network(strings.TrimSpace(p.Subnet), true, "虚拟网段"); err != nil {
+		return err
+	}
+	if p.IPv6 {
+		if err := validateIPv6CIDR(strings.TrimSpace(p.IPv6Subnet), "IPv6 网段"); err != nil {
+			return err
+		}
+	}
+	if err := validateKeepalive(strings.TrimSpace(p.Keepalive)); err != nil {
+		return err
+	}
+	if err := validateIPAddress(strings.TrimSpace(p.PushDNS1), "推送 DNS 1"); err != nil {
+		return err
+	}
+	if err := validateIPAddress(strings.TrimSpace(p.PushDNS2), "推送 DNS 2"); err != nil {
+		return err
+	}
+	if err := validatePushRoutes(strings.TrimSpace(p.PushRoutes)); err != nil {
+		return err
+	}
+	if strings.TrimSpace(p.Verb) != "" {
+		if n, err := strconv.Atoi(strings.TrimSpace(p.Verb)); err != nil || n < 0 || n > 11 {
+			return errInvalid("日志级别必须为 0-11 的整数")
+		}
+	}
+	return nil
+}
+
+func validateCIDRorIPv4Network(raw string, allowBare bool, field string) error {
+	if raw == "" {
+		return errInvalid(field + "不能为空")
+	}
+	if strings.Contains(raw, "/") {
+		if _, _, err := net.ParseCIDR(raw); err != nil {
+			return errInvalid(field + "格式错误，应为如 10.8.8.0/24")
+		}
+		return nil
+	}
+	if allowBare && net.ParseIP(raw) != nil {
+		return nil
+	}
+	return errInvalid(field + "格式错误，应为如 10.8.8.0/24")
+}
+
+func validateIPv6CIDR(raw, field string) error {
+	if raw == "" {
+		return errInvalid(field + "不能为空")
+	}
+	ip, netw, err := net.ParseCIDR(raw)
+	if err != nil || ip == nil || netw == nil || ip.To4() != nil {
+		return errInvalid(field + "格式错误，应为如 fd00:8::/64")
+	}
+	return nil
+}
+
+func validateKeepalive(raw string) error {
+	parts := strings.Fields(raw)
+	if len(parts) != 2 {
+		return errInvalid("保活参数必须为两个整数，如 10 120")
+	}
+	for _, part := range parts {
+		n, err := strconv.Atoi(part)
+		if err != nil || n <= 0 {
+			return errInvalid("保活参数必须为两个大于 0 的整数，如 10 120")
+		}
+	}
+	return nil
+}
+
+func validateIPAddress(raw, field string) error {
+	if raw == "" {
+		return nil
+	}
+	if net.ParseIP(raw) == nil {
+		return errInvalid(field + "必须是合法的 IPv4 或 IPv6 地址")
+	}
+	return nil
+}
+
+func validatePushRoutes(raw string) error {
+	if raw == "" {
+		return nil
+	}
+	for _, line := range strings.Split(raw, "\n") {
+		line = strings.TrimSpace(line)
+		if line == "" {
+			continue
+		}
+		if strings.HasPrefix(line, "push ") {
+			continue
+		}
+		if _, _, err := net.ParseCIDR(line); err != nil {
+			return errInvalid("推送路由每行必须是 CIDR，如 192.168.10.0/24")
+		}
+	}
+	return nil
+}
+
+func errInvalid(msg string) error {
+	return &paramError{msg: msg}
+}
+
+type paramError struct {
+	msg string
+}
+
+func (e *paramError) Error() string { return e.msg }
 
 // ApplyOpenVPNParams 将当前保存的参数应用到 server.conf 文件
 func ApplyOpenVPNParams(db *gorm.DB, cfg *config.Config) gin.HandlerFunc {

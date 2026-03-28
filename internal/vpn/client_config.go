@@ -12,7 +12,7 @@ import (
 // 本系统一用户一客户端，clientName 即用户名（证书 CN）
 // serverAddr 为公网地址，如 "vpn.example.com" 或 "1.2.3.4"
 // routeNopull 为 true 时在配置末尾添加 route-nopull，使客户端忽略服务端推送的路由
-func GenClientOVPN(basePath, clientName, serverAddr string, port int, proto string, routeNopull bool) (string, error) {
+func GenClientOVPN(basePath, clientName, serverAddr string, port int, proto, device, cipherName, authName string, routeNopull bool) (string, error) {
 	clientName = sanitizeName(clientName)
 	if clientName == "" {
 		return "", errors.New("客户端名不能为空")
@@ -50,8 +50,20 @@ func GenClientOVPN(basePath, clientName, serverAddr string, port int, proto stri
 	if proto != "tcp" && proto != "udp" {
 		proto = "udp"
 	}
+	device = strings.ToLower(strings.TrimSpace(device))
+	if device != "tap" && device != "tun" {
+		device = "tun"
+	}
+	cipherName = strings.TrimSpace(cipherName)
+	if cipherName == "" {
+		cipherName = "AES-256-GCM"
+	}
+	authName = strings.TrimSpace(authName)
+	if authName == "" {
+		authName = "SHA256"
+	}
 	content := fmt.Sprintf(`client
-dev tun
+dev %s
 proto %s
 remote %s %d
 resolv-retry infinite
@@ -59,8 +71,8 @@ nobind
 persist-key
 persist-tun
 remote-cert-tls server
-cipher AES-256-GCM
-auth SHA256
+cipher %s
+auth %s
 auth-user-pass
 verb 3
 
@@ -72,7 +84,7 @@ verb 3
 
 <key>
 %s</key>
-`, proto, serverAddr, port, caStr, certStr, keyStr)
+`, device, proto, serverAddr, port, cipherName, authName, caStr, certStr, keyStr)
 
 	if routeNopull {
 		content += "\n# 忽略服务端推送的路由\nroute-nopull\n"
