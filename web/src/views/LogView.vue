@@ -14,18 +14,21 @@
         <el-checkbox v-model="autoRefresh" class="auto-refresh" size="small">
           自动刷新（每 3 秒）
         </el-checkbox>
+        <el-checkbox v-model="autoScroll" class="auto-refresh" size="small">
+          自动滚动到底部
+        </el-checkbox>
       </div>
     </div>
     <div v-if="path" class="path-tip">路径：{{ path }}</div>
     <div v-if="message" class="msg error">{{ message }}</div>
     <div class="card log-wrap">
-      <pre class="log-content">{{ content || (loading ? '加载中…' : '暂无内容或文件不存在') }}</pre>
+      <pre ref="logContentRef" class="log-content">{{ content || (loading ? '加载中…' : '暂无内容或文件不存在') }}</pre>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, watch, onMounted, onUnmounted, computed } from 'vue'
+import { ref, watch, onMounted, onUnmounted, computed, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import client from '../api/client'
@@ -40,7 +43,16 @@ const path = ref('')
 const loading = ref(false)
 const message = ref(null)
 const autoRefresh = ref(false)
+const autoScroll = ref(true)
+const logContentRef = ref(null)
 let timer = null
+
+async function scrollToBottom() {
+  await nextTick()
+  const el = logContentRef.value
+  if (!el) return
+  el.scrollTop = el.scrollHeight
+}
 
 async function load() {
   loading.value = true
@@ -52,6 +64,9 @@ async function load() {
     content.value = data.content || ''
     path.value = data.path || ''
     if (data.message) message.value = data.message
+    if (autoScroll.value) {
+      await scrollToBottom()
+    }
   } catch (e) {
     content.value = ''
     message.value = e.response?.data?.error || '加载失败'
@@ -65,6 +80,9 @@ watch(autoRefresh, (on) => {
   if (timer) clearInterval(timer)
   timer = null
   if (on) timer = setInterval(load, 3000)
+})
+watch(autoScroll, (on) => {
+  if (on) scrollToBottom()
 })
 watch(logFile, () => { load() })
 
