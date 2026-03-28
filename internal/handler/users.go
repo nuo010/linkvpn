@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/json"
 	"net/http"
 	"path/filepath"
 	"strconv"
@@ -334,7 +335,16 @@ func DownloadClientConfig(db *gorm.DB, cfg *config.Config) gin.HandlerFunc {
 				}
 			}
 		}
-		ovpnPath, err := vpn.GenClientOVPN(cfg.VPNBasePath, u.Name, serverAddr, port, u.RouteNopull)
+		proto := "udp"
+		var paramsCfg model.ServerConfig
+		p := model.DefaultOpenVPNParams()
+		if err := db.Where("key = ?", model.OVPNParamsKey).First(&paramsCfg).Error; err == nil && paramsCfg.Value != "" {
+			_ = json.Unmarshal([]byte(paramsCfg.Value), &p)
+			if strings.EqualFold(strings.TrimSpace(p.Protocol), "tcp") {
+				proto = "tcp"
+			}
+		}
+		ovpnPath, err := vpn.GenClientOVPN(cfg.VPNBasePath, u.Name, serverAddr, port, proto, u.RouteNopull)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "生成配置失败: " + err.Error()})
 			return

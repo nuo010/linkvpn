@@ -125,7 +125,7 @@ onMounted(() => {
   font-size: 1.2rem;
 }
 .section-card {
-  max-width: 640px;
+  width: 100%;
 }
 .section-title {
   margin: 0 0 0.75rem;
@@ -142,7 +142,6 @@ onMounted(() => {
 }
 .form-row input {
   width: 100%;
-  max-width: 320px;
 }
 .success-tip {
   margin: 0 0 1rem;

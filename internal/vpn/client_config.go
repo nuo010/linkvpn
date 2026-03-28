@@ -12,7 +12,7 @@ import (
 // 本系统一用户一客户端，clientName 即用户名（证书 CN）
 // serverAddr 为公网地址，如 "vpn.example.com" 或 "1.2.3.4"
 // routeNopull 为 true 时在配置末尾添加 route-nopull，使客户端忽略服务端推送的路由
-func GenClientOVPN(basePath, clientName, serverAddr string, port int, routeNopull bool) (string, error) {
+func GenClientOVPN(basePath, clientName, serverAddr string, port int, proto string, routeNopull bool) (string, error) {
 	clientName = sanitizeName(clientName)
 	if clientName == "" {
 		return "", errors.New("客户端名不能为空")
@@ -46,7 +46,10 @@ func GenClientOVPN(basePath, clientName, serverAddr string, port int, routeNopul
 		return "", errors.New("CA/证书/私钥内容为空，请先在「系统配置」中初始化 PKI 并为该用户生成证书")
 	}
 
-	proto := "udp"
+	proto = strings.ToLower(strings.TrimSpace(proto))
+	if proto != "tcp" && proto != "udp" {
+		proto = "udp"
+	}
 	content := fmt.Sprintf(`client
 dev tun
 proto %s
