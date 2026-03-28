@@ -51,8 +51,10 @@
           </el-select>
           <button class="primary" @click="applySearch">查询</button>
         </div>
-        <span class="refresh-hint">每 5 秒自动刷新</span>
-        <button class="primary add-btn" @click="openForm()">+ 添加用户</button>
+        <div class="toolbar-meta">
+          <span class="refresh-hint">每 5 秒自动刷新</span>
+          <button class="primary add-btn" @click="openForm()">+ 添加用户</button>
+        </div>
       </div>
     </div>
 
@@ -151,7 +153,6 @@
         <el-table-column label="功能操作" min-width="220" fixed="right" align="center">
           <template #default="{ row }">
             <div class="actions-cell">
-              <el-button size="small" type="primary" @click="downloadConfig(row)">下载配置</el-button>
               <el-dropdown trigger="click" popper-class="user-actions-dropdown" @command="(cmd) => onActionCommand(cmd, row)">
                 <el-button size="small" type="primary" plain>
                   操作
@@ -159,6 +160,7 @@
                 </el-button>
                 <template #dropdown>
                   <el-dropdown-menu>
+                    <el-dropdown-item command="download">下载配置</el-dropdown-item>
                     <el-dropdown-item command="copy">复制用户名和密码</el-dropdown-item>
                     <el-dropdown-item command="edit">编辑</el-dropdown-item>
                     <el-dropdown-item command="delete" divided>
@@ -172,7 +174,10 @@
         </el-table-column>
       </el-table>
       </div>
-      <p v-if="filteredUsers.length === 0" class="empty-tip">暂无用户，点击「添加用户」创建。</p>
+      <div v-if="filteredUsers.length === 0" class="empty-state user-empty-state">
+        <p class="empty-state-title">暂无用户</p>
+        <p class="empty-state-desc">当前还没有 VPN 用户，点击上方“添加用户”就可以开始创建。</p>
+      </div>
     </div>
 
     <div v-if="filteredUsers.length > 0" class="pagination">
@@ -333,7 +338,8 @@ const filterOnline = ref('all') // all | online | offline
 const currentPage = ref(1)
 const pageSize = ref(20)
 function onActionCommand(cmd, row) {
-  if (cmd === 'copy') copyCredentials(row)
+  if (cmd === 'download') downloadConfig(row)
+  else if (cmd === 'copy') copyCredentials(row)
   else if (cmd === 'edit') openEdit(row)
   else if (cmd === 'delete') del(row)
 }
@@ -708,76 +714,102 @@ onUnmounted(() => {
 .user-page {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1rem;
+  min-height: 0;
 }
 .page-header {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 0.85rem;
+  padding: 1.1rem 1.15rem 1rem;
+  border-radius: 18px;
+  border: 1px solid #dbe7f3;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  box-shadow: 0 16px 34px rgba(15, 23, 42, 0.05);
 }
 .page-title {
   margin: 0;
-  font-size: 1.15rem;
-  font-weight: 600;
-  color: var(--text);
+  width: 100%;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0f172a;
 }
 .header-actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.9rem;
-  justify-content: space-between;
+  gap: 0.8rem;
+  justify-content: flex-start;
+  width: 100%;
 }
 .search-wrap {
   display: flex;
   align-items: center;
   gap: 0.65rem;
   flex-wrap: wrap;
-  padding: 0.9rem 1rem;
-  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
-  border: 1px solid #e6edf7;
-  border-radius: 12px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
+  flex: 1 1 760px;
+  min-width: min(100%, 320px);
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
 }
 .search-label {
   font-size: 0.9rem;
-  color: var(--muted);
-  font-weight: 500;
-  margin-right: 0.15rem;
+  color: #64748b;
+  font-weight: 700;
+  margin-right: 0.1rem;
 }
 .search-input {
   width: 200px;
-  padding: 0.5rem 0.75rem;
-  height: 36px;
-  border-radius: var(--radius);
-  border-color: #dbe5f1;
+  flex: 1 1 200px;
+  padding: 0 0.85rem;
+  height: 40px;
+  border-radius: 12px;
+  border-color: #d8e3f0;
   background: #fff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.92);
 }
 .ip-input {
   width: 220px;
 }
 /* Element Plus 下拉：与输入框同高、统一圆角 */
 .filter-select {
-  width: 120px;
+  width: 150px;
+  flex: 0 0 150px;
 }
 .filter-select :deep(.el-select__wrapper) {
-  min-height: 36px;
-  border-radius: var(--radius);
+  min-height: 40px;
+  border-radius: 12px;
+  border: 1px solid #d8e3f0;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.92);
+  background: #fff;
 }
 .filter-select-wide {
-  width: 150px;
+  width: 160px;
+}
+.toolbar-meta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.9rem;
+  flex: 0 0 auto;
+  margin-left: auto;
+  padding-left: 0.25rem;
 }
 .add-btn {
   flex-shrink: 0;
-  height: 36px;
-  padding: 0 1rem;
-  box-shadow: 0 10px 24px rgba(64, 158, 255, 0.16);
+  height: 40px;
+  padding: 0 1.2rem;
+  border-radius: 12px;
+  box-shadow: 0 12px 26px rgba(64, 158, 255, 0.18);
 }
 .refresh-hint {
-  font-size: 0.8rem;
-  color: var(--muted);
+  font-size: 0.88rem;
+  color: #64748b;
   white-space: nowrap;
 }
 .card.table-wrap {
@@ -789,11 +821,14 @@ onUnmounted(() => {
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
   border: 1px solid #e8edf5;
+  display: flex;
+  flex-direction: column;
 }
 .table-wrap {
   overflow-x: auto;
   overflow-y: hidden;
   background: #fff;
+  min-height: 0;
 }
 .table-wrap :deep(.el-table) {
   min-width: 100%;
@@ -809,6 +844,10 @@ onUnmounted(() => {
 }
 .table-wrap :deep(.el-table__body tr td) {
   background: #fff;
+}
+.table-wrap :deep(.el-table td.el-table__cell),
+.table-wrap :deep(.el-table th.el-table__cell) {
+  padding: 0.68rem 0.7rem;
 }
 .table-wrap :deep(.el-table__body tr:hover > td) {
   background: #f8fbff !important;
@@ -975,8 +1014,8 @@ onUnmounted(() => {
 }
 .card.table-wrap td,
 .user-table-card td {
-  padding: 0.75rem 1rem;
-  font-size: 0.9rem;
+  padding: 0.62rem 0.85rem;
+  font-size: 0.88rem;
   vertical-align: middle;
   border-bottom: 1px solid var(--border);
 }
@@ -987,17 +1026,16 @@ onUnmounted(() => {
 .actions-cell {
   white-space: nowrap;
   display: flex;
-  flex-wrap: wrap;
   justify-content: center;
   align-items: center;
-  gap: 0.45rem;
+  gap: 0.25rem;
 }
 .actions-cell .btn {
   white-space: nowrap;
 }
 .dropdown-caret {
   margin-left: 4px;
-  font-size: 10px;
+  font-size: 9px;
   opacity: 0.85;
   display: inline-block;
   vertical-align: middle;
@@ -1013,18 +1051,17 @@ button.small {
   font-size: 0.8rem;
   font-weight: 500;
 }
-.empty-tip {
-  padding: 3rem 1.5rem;
-  margin: 0;
-  color: var(--muted);
-  text-align: center;
-  font-size: 0.9rem;
-  background: linear-gradient(180deg, rgba(248, 250, 252, 0.65) 0%, rgba(255, 255, 255, 1) 100%);
+.user-empty-state {
+  margin: 1rem;
+  min-height: 120px;
 }
 .actions-cell :deep(.el-button) {
-  min-width: 88px;
-  border-radius: 10px;
+  min-width: 96px;
+  height: 32px;
+  padding: 0 0.75rem;
+  border-radius: 11px;
   font-weight: 600;
+  font-size: 0.86rem;
 }
 .actions-cell :deep(.el-button--primary.is-plain) {
   background: #eef6ff;
@@ -1041,7 +1078,8 @@ button.small {
   gap: 1rem;
   flex-wrap: wrap;
   justify-content: space-between;
-  padding: 0 0.25rem;
+  padding: 0.15rem 0.3rem 0;
+  margin-top: -0.1rem;
 }
 .pagination-info {
   color: var(--muted);
@@ -1051,8 +1089,8 @@ button.small {
   width: 120px;
 }
 .page-size-select :deep(.el-select__wrapper) {
-  min-height: 32px;
-  border-radius: var(--radius);
+  min-height: 40px;
+  border-radius: 12px;
 }
 .page-btns {
   display: flex;
@@ -1060,12 +1098,15 @@ button.small {
   gap: 0.5rem;
 }
 .page-btns button {
-  height: 32px;
-  padding: 0 0.75rem;
+  height: 40px;
+  padding: 0 1rem;
+  border-radius: 12px;
 }
 .page-num {
   font-size: 0.9rem;
   color: var(--muted);
+  min-width: 56px;
+  text-align: center;
 }
 .modal {
   position: fixed;
@@ -1361,6 +1402,15 @@ button.small {
   }
   .search-wrap {
     width: 100%;
+    flex: 1 1 100%;
+  }
+  .toolbar-meta {
+    width: 100%;
+    margin-left: 0;
+    justify-content: space-between;
+  }
+  .pagination {
+    justify-content: flex-start;
   }
 }
 @media (max-width: 820px) {
@@ -1390,15 +1440,61 @@ button.small {
     justify-content: flex-end;
     flex-wrap: wrap;
   }
+  .page-header {
+    gap: 0.85rem;
+  }
+  .search-wrap {
+    gap: 0.55rem;
+  }
+  .search-label {
+    width: 100%;
+  }
+  .search-input,
+  .ip-input,
+  .filter-select,
+  .filter-select-wide {
+    width: 100%;
+    flex: 1 1 100%;
+  }
+  .search-wrap button.primary {
+    width: 100%;
+  }
+  .toolbar-meta {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    padding-left: 0;
+  }
+  .add-btn {
+    width: 100%;
+    justify-content: center;
+  }
+  .refresh-hint {
+    text-align: center;
+  }
+  .pagination {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+  .pagination-info {
+    text-align: center;
+  }
+  .page-size-select {
+    width: 100%;
+  }
+  .page-btns {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
 }
 </style>
 
 <!-- 下拉挂在 body 上，需非 scoped 才能作用到 popper -->
 <style>
 .user-actions-dropdown {
-  min-width: 188px;
-  padding: 8px;
-  border-radius: 14px;
+  min-width: 170px;
+  padding: 6px;
+  border-radius: 12px;
   border: 1px solid #e6edf7;
   box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
   background: rgba(255, 255, 255, 0.98);
@@ -1414,10 +1510,11 @@ button.small {
   box-shadow: none;
 }
 .user-actions-dropdown .el-dropdown-menu__item {
-  min-height: 42px;
-  border-radius: 10px;
-  margin: 2px 0;
-  font-size: 0.95rem;
+  min-height: 36px;
+  border-radius: 9px;
+  margin: 1px 0;
+  padding: 0 12px;
+  font-size: 0.9rem;
   font-weight: 600;
   color: #334155;
   transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
@@ -1431,9 +1528,9 @@ button.small {
   opacity: 0.5;
 }
 .user-actions-dropdown .el-dropdown-menu__item--divided {
-  margin-top: 8px;
+  margin-top: 6px;
   border-top-color: #eef2f7;
-  padding-top: 10px;
+  padding-top: 8px;
 }
 .dropdown-danger-text {
   color: #ef4444;

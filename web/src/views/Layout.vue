@@ -1,47 +1,56 @@
 <template>
   <div class="app-layout">
-    <aside class="sidebar" :class="{ collapsed: sidebarCollapsed }">
+    <div v-if="isMobile && mobileSidebarOpen" class="sidebar-mask" @click="closeMobileSidebar"></div>
+
+    <aside class="sidebar" :class="{ collapsed: sidebarCollapsed && !isMobile, 'mobile-open': mobileSidebarOpen }">
       <div class="logo-wrap">
         <img class="logo" :src="logoUrl" alt="LinkVPN" />
-        <span v-show="!sidebarCollapsed" class="logo-title">LinkVPN</span>
+        <span v-show="!sidebarCollapsed || isMobile" class="logo-title">LinkVPN</span>
       </div>
       <nav class="nav">
         <router-link to="/home" class="nav-item">
           <img class="nav-icon-img" :src="iconHome" alt="" />
-          <span v-show="!sidebarCollapsed" class="nav-text">首页</span>
+          <span v-show="!sidebarCollapsed || isMobile" class="nav-text">首页</span>
         </router-link>
         <router-link to="/user" class="nav-item">
           <img class="nav-icon-img" :src="iconUserList" alt="" />
-          <span v-show="!sidebarCollapsed" class="nav-text">用户管理</span>
+          <span v-show="!sidebarCollapsed || isMobile" class="nav-text">用户管理</span>
         </router-link>
         <router-link to="/logs/login" class="nav-item">
            <img class="nav-icon-img" :src="iconLoginLog" alt="" />
-           <span v-show="!sidebarCollapsed" class="nav-text">连接记录</span>
+           <span v-show="!sidebarCollapsed || isMobile" class="nav-text">连接记录</span>
         </router-link>
         <router-link to="/logs/main" class="nav-item">
           <img class="nav-icon-img" :src="iconSysLog" alt="" />
-          <span v-show="!sidebarCollapsed" class="nav-text">服务日志</span>
+          <span v-show="!sidebarCollapsed || isMobile" class="nav-text">服务日志</span>
         </router-link>
         <router-link to="/logs/status" class="nav-item">
           <img class="nav-icon-img" :src="iconStatusLog" alt="" />
-          <span v-show="!sidebarCollapsed" class="nav-text">状态日志</span>
+          <span v-show="!sidebarCollapsed || isMobile" class="nav-text">状态日志</span>
         </router-link>
         <router-link to="/settings" class="nav-item" :class="{ 'router-link-active': route.path.startsWith('/settings') }">
            <img class="nav-icon-img" :src="iconSettings" alt="" />
-           <span v-show="!sidebarCollapsed" class="nav-text">系统配置</span>
+           <span v-show="!sidebarCollapsed || isMobile" class="nav-text">系统配置</span>
         </router-link>
         <button class="nav-item logout" @click="logout">
           <img class="nav-icon-img" :src="iconLogout" alt="" />
-          <span v-show="!sidebarCollapsed" class="nav-text">注销登录</span>
+          <span v-show="!sidebarCollapsed || isMobile" class="nav-text">注销登录</span>
         </button>
       </nav>
-      <button class="collapse-btn" @click="sidebarCollapsed = !sidebarCollapsed" :title="sidebarCollapsed ? '展开' : '收起'">
+      <button v-if="!isMobile" class="collapse-btn" @click="sidebarCollapsed = !sidebarCollapsed" :title="sidebarCollapsed ? '展开' : '收起'">
         {{ sidebarCollapsed ? '»' : '«' }}
       </button>
     </aside>
     <div class="main-wrap">
       <header class="header">
-        <span class="header-title">{{ currentTitle }}</span>
+        <div class="header-left">
+          <button v-if="isMobile" class="mobile-menu-btn" @click="mobileSidebarOpen = !mobileSidebarOpen" :aria-label="mobileSidebarOpen ? '关闭菜单' : '打开菜单'">
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+          <span class="header-title">{{ currentTitle }}</span>
+        </div>
         <div class="header-right">
           <span class="greeting">您好，管理员</span>
         </div>
@@ -78,7 +87,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import client from '../api/client'
@@ -96,6 +105,8 @@ const router = useRouter()
 const route = useRoute()
 const auth = useAuthStore()
 const sidebarCollapsed = ref(false)
+const mobileSidebarOpen = ref(false)
+const isMobile = ref(false)
 
 const showInitialSetupModal = ref(false)
 const initialHost = ref('')
@@ -165,8 +176,30 @@ function logout() {
   router.push('/login')
 }
 
+function syncViewport() {
+  if (typeof window === 'undefined') return
+  isMobile.value = window.innerWidth <= 960
+  if (!isMobile.value) {
+    mobileSidebarOpen.value = false
+  }
+}
+
+function closeMobileSidebar() {
+  mobileSidebarOpen.value = false
+}
+
 onMounted(() => {
+  syncViewport()
+  window.addEventListener('resize', syncViewport)
   checkNeedInitialSetup()
+})
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', syncViewport)
+})
+watch(() => route.fullPath, () => {
+  if (isMobile.value) {
+    mobileSidebarOpen.value = false
+  }
 })
 </script>
 
@@ -188,9 +221,17 @@ onMounted(() => {
   flex-direction: column;
   transition: width 0.2s;
   flex-shrink: 0;
+  z-index: 30;
 }
 .sidebar.collapsed {
   width: 64px;
+}
+.sidebar-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 25;
+  background: rgba(15, 23, 42, 0.28);
+  backdrop-filter: blur(2px);
 }
 .logo-wrap {
   min-height: var(--header-height);
@@ -312,10 +353,40 @@ onMounted(() => {
   padding: 0 1.4rem 0 1.5rem;
   box-shadow: 0 6px 24px rgba(15, 23, 42, 0.03);
 }
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  min-width: 0;
+}
 .header-title {
   font-size: 1.14rem;
   font-weight: 700;
   color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mobile-menu-btn {
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 12px;
+  border: 1px solid rgba(203, 213, 225, 0.9);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
+}
+.mobile-menu-btn span {
+  display: block;
+  width: 16px;
+  height: 2px;
+  margin: 0 auto;
+  border-radius: 999px;
+  background: #334155;
 }
 .greeting {
   display: inline-flex;
@@ -333,6 +404,11 @@ onMounted(() => {
   flex: 1;
   padding: 1.25rem;
   overflow: auto;
+}
+.main > :deep(*) {
+  width: 100%;
+  max-width: 1560px;
+  margin: 0 auto;
 }
 
 /* 首次设置弹窗：不可点击遮罩关闭，必须保存 */
@@ -406,6 +482,45 @@ onMounted(() => {
   }
   .main {
     padding: 1rem;
+  }
+  .greeting {
+    padding: 0 0.7rem;
+    font-size: 0.82rem;
+  }
+}
+@media (max-width: 960px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: min(280px, 82vw);
+    transform: translateX(-100%);
+    transition: transform 0.22s ease;
+  }
+  .sidebar.mobile-open {
+    transform: translateX(0);
+  }
+  .main-wrap {
+    width: 100%;
+  }
+}
+@media (max-width: 640px) {
+  .header {
+    height: auto;
+    min-height: var(--header-height);
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+    align-items: flex-start;
+  }
+  .header-right {
+    margin-left: auto;
+  }
+  .header-title {
+    font-size: 1rem;
+  }
+  .main {
+    padding: 0.85rem;
   }
 }
 </style>

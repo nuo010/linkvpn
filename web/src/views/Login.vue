@@ -7,28 +7,6 @@
       <div class="login-bg-grid"></div>
     </div>
     <div class="login-shell">
-      <div class="login-panel login-panel-intro">
-        <p class="login-eyebrow">OpenVPN 管理控制台</p>
-        <h1 class="login-heading">一个更顺手的 LinkVPN 管理后台</h1>
-        <p class="login-copy">
-          登录后可以统一完成用户管理、服务配置、连接记录排查和日志查看。界面现在已经和后台其他页面统一成同一套风格。
-        </p>
-        <div class="login-feature-list">
-          <div class="login-feature-item">
-            <span class="feature-dot"></span>
-            <span>表单化配置 `server.conf`，减少手工编辑出错</span>
-          </div>
-          <div class="login-feature-item">
-            <span class="feature-dot"></span>
-            <span>客户端配置自动跟随协议、设备和加密参数</span>
-          </div>
-          <div class="login-feature-item">
-            <span class="feature-dot"></span>
-            <span>首页、用户、日志、系统配置视觉风格已统一</span>
-          </div>
-        </div>
-      </div>
-
       <div class="login-panel login-card">
         <div class="login-brand">
           <img class="login-logo" :src="logoUrl" alt="LinkVPN" />
@@ -154,23 +132,12 @@ async function submit() {
 .login-shell {
   position: relative;
   z-index: 1;
-  width: min(100%, 1040px);
-  display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  gap: 1rem;
-  align-items: stretch;
+  width: min(100%, 460px);
 }
 .login-panel {
   border-radius: 24px;
   border: 1px solid rgba(219, 231, 243, 0.92);
   backdrop-filter: blur(12px);
-}
-.login-panel-intro {
-  padding: 2rem 2rem 1.8rem;
-  background:
-    radial-gradient(circle at top right, rgba(59, 130, 246, 0.18), transparent 34%),
-    linear-gradient(135deg, rgba(255, 255, 255, 0.72) 0%, rgba(248, 251, 255, 0.94) 100%);
-  box-shadow: 0 24px 50px rgba(37, 99, 235, 0.08);
 }
 .login-card {
   width: 100%;
@@ -182,52 +149,6 @@ async function submit() {
     0 0 0 1px rgba(255, 255, 255, 0.85) inset,
     0 24px 52px rgba(15, 23, 42, 0.1);
   backdrop-filter: blur(12px);
-}
-.login-eyebrow {
-  margin: 0 0 0.4rem;
-  font-size: 0.82rem;
-  letter-spacing: 0.08em;
-  color: #2563eb;
-  font-weight: 700;
-}
-.login-heading {
-  margin: 0;
-  max-width: 12ch;
-  font-size: 2rem;
-  line-height: 1.12;
-  color: #0f172a;
-}
-.login-copy {
-  margin: 0.85rem 0 1.5rem;
-  max-width: 40rem;
-  color: #64748b;
-  line-height: 1.72;
-  font-size: 0.96rem;
-}
-.login-feature-list {
-  display: grid;
-  gap: 0.75rem;
-}
-.login-feature-item {
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
-  min-height: 48px;
-  padding: 0.8rem 0.95rem;
-  border-radius: 16px;
-  border: 1px solid rgba(219, 231, 243, 0.96);
-  background: rgba(255, 255, 255, 0.82);
-  color: #334155;
-  font-size: 0.9rem;
-  line-height: 1.5;
-}
-.feature-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 999px;
-  background: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%);
-  box-shadow: 0 0 0 5px rgba(96, 165, 250, 0.12);
-  flex-shrink: 0;
 }
 .login-brand {
   display: flex;
@@ -332,30 +253,13 @@ async function submit() {
   cursor: not-allowed;
   transform: none;
 }
-@media (max-width: 900px) {
-  .login-shell {
-    grid-template-columns: 1fr;
-    max-width: 560px;
-  }
-  .login-panel-intro {
-    padding-bottom: 1.6rem;
-  }
-  .login-heading {
-    max-width: none;
-    font-size: 1.7rem;
-  }
-}
 @media (max-width: 520px) {
   .login-page {
     padding: 1rem;
   }
-  .login-panel-intro,
   .login-card {
     padding: 1.35rem 1.15rem;
     border-radius: 18px;
-  }
-  .login-heading {
-    font-size: 1.45rem;
   }
 }
 </style>

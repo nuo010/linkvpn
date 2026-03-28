@@ -102,6 +102,12 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
   align-items: center;
   gap: 0.5rem;
 }
+.header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
 .page-title {
   margin: 0;
   font-size: 1.1rem;
@@ -148,5 +154,32 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
   font-size: 0.85rem;
   color: var(--muted);
   cursor: pointer;
+}
+@media (max-width: 820px) {
+  .page-header {
+    align-items: stretch;
+  }
+  .header-actions {
+    width: 100%;
+    align-items: stretch;
+  }
+  .lines-select {
+    width: 100%;
+    padding: 0;
+  }
+  .header-actions :deep(.el-button) {
+    width: 100%;
+  }
+  .auto-refresh {
+    width: 100%;
+  }
+  .log-wrap {
+    padding: 0.85rem;
+  }
+  .log-content {
+    max-height: calc(100vh - 260px);
+    min-height: 160px;
+    font-size: 0.76rem;
+  }
 }
 </style>

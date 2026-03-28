@@ -82,7 +82,14 @@ func ParseStatusFile(path string) ([]ClientUsage, error) {
 					}
 				}
 				if cn != "" && vAddr != "" {
-					virtualByCN[cn] = vAddr
+					prev := virtualByCN[cn]
+					switch {
+					case prev == "":
+						virtualByCN[cn] = vAddr
+					case isClientVirtualAddress(vAddr) && !isClientVirtualAddress(prev):
+						// 优先保留真正的客户端虚拟 IP，而不是 CCD/iroute 网段。
+						virtualByCN[cn] = vAddr
+					}
 				}
 			}
 			continue
@@ -172,6 +179,14 @@ func ParseStatusFile(path string) ([]ClientUsage, error) {
 		}
 	}
 	return list, sc.Err()
+}
+
+func isClientVirtualAddress(v string) bool {
+	v = strings.TrimSpace(v)
+	if v == "" || strings.Contains(v, "/") {
+		return false
+	}
+	return net.ParseIP(v) != nil
 }
 
 // ParseConnectedSince 解析 OpenVPN status 中 Connected Since 多种格式（供 handler 等复用）

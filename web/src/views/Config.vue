@@ -488,4 +488,38 @@ onMounted(async () => {
     align-items: stretch;
   }
 }
+@media (max-width: 820px) {
+  .alert-warning,
+  .config-card {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  .params-grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .switch-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  .config-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .config-actions :deep(.el-button) {
+    width: 100%;
+    margin-left: 0 !important;
+  }
+  .preview-actions {
+    display: flex;
+  }
+  .preview-actions :deep(.el-button) {
+    width: 100%;
+  }
+  .config-preview {
+    min-height: 260px;
+    font-size: 0.8rem;
+  }
+}
 </style>

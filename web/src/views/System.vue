@@ -156,4 +156,20 @@ onMounted(() => {
 .form-actions {
   margin-top: 0.5rem;
 }
+@media (max-width: 720px) {
+  .alert-tip,
+  .section-card {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  .section-title {
+    font-size: 0.98rem;
+  }
+  .form-actions {
+    display: flex;
+  }
+  .form-actions :deep(.el-button) {
+    width: 100%;
+  }
+}
 </style>
