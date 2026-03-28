@@ -56,13 +56,16 @@
       </div>
     </div>
 
-    <div class="card table-wrap">
+    <div class="card user-table-card">
+      <div class="table-wrap">
       <el-table
         :data="paginatedUsers"
         size="small"
         stripe
         border
-        style="width: 100%; flex: 1 1 auto"
+        table-layout="auto"
+        style="width: 100%"
+        :header-cell-style="{ background: '#f8fafc', color: '#475569', fontWeight: '700' }"
       >
         <el-table-column label="序号" width="70" align="center">
           <template #default="{ $index }">
@@ -168,6 +171,7 @@
           </template>
         </el-table-column>
       </el-table>
+      </div>
       <p v-if="filteredUsers.length === 0" class="empty-tip">暂无用户，点击「添加用户」创建。</p>
     </div>
 
@@ -723,24 +727,33 @@ onUnmounted(() => {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.9rem;
+  justify-content: space-between;
 }
 .search-wrap {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.65rem;
   flex-wrap: wrap;
+  padding: 0.9rem 1rem;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  border: 1px solid #e6edf7;
+  border-radius: 12px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
 }
 .search-label {
   font-size: 0.9rem;
   color: var(--muted);
   font-weight: 500;
+  margin-right: 0.15rem;
 }
 .search-input {
   width: 200px;
   padding: 0.5rem 0.75rem;
   height: 36px;
   border-radius: var(--radius);
+  border-color: #dbe5f1;
+  background: #fff;
 }
 .ip-input {
   width: 220px;
@@ -760,23 +773,60 @@ onUnmounted(() => {
   flex-shrink: 0;
   height: 36px;
   padding: 0 1rem;
+  box-shadow: 0 10px 24px rgba(64, 158, 255, 0.16);
 }
 .refresh-hint {
   font-size: 0.8rem;
   color: var(--muted);
+  white-space: nowrap;
 }
 .card.table-wrap {
   padding: 0;
-  min-height: 420px;
-  display: flex;
-  flex-direction: column;
-  overflow-x: auto;
 }
-.card.table-wrap table {
+.user-table-card {
+  padding: 0;
+  overflow: hidden;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+  border: 1px solid #e8edf5;
+}
+.table-wrap {
+  overflow-x: auto;
+  overflow-y: hidden;
+  background: #fff;
+}
+.table-wrap :deep(.el-table) {
+  min-width: 100%;
+  --el-table-border-color: #e8edf5;
+  --el-table-header-bg-color: #f8fafc;
+  --el-table-row-hover-bg-color: #f8fbff;
+}
+.table-wrap :deep(.el-table__inner-wrapper::before) {
+  display: none;
+}
+.table-wrap :deep(.el-table__header-wrapper th) {
+  background: #f8fafc !important;
+}
+.table-wrap :deep(.el-table__body tr td) {
+  background: #fff;
+}
+.table-wrap :deep(.el-table__body tr:hover > td) {
+  background: #f8fbff !important;
+}
+.table-wrap :deep(.el-scrollbar__bar.is-horizontal) {
+  bottom: 0;
+  height: 10px;
+}
+.table-wrap :deep(.el-scrollbar__thumb) {
+  background: rgba(148, 163, 184, 0.65);
+}
+.card.table-wrap table,
+.user-table-card table {
   table-layout: auto;
   min-width: 100%;
 }
-.card.table-wrap th {
+.card.table-wrap th,
+.user-table-card th {
   font-weight: 600;
   font-size: 0.875rem;
   color: var(--text);
@@ -786,20 +836,26 @@ onUnmounted(() => {
   white-space: nowrap;
   text-align: center;
 }
-.card.table-wrap td {
+.card.table-wrap td,
+.user-table-card td {
   text-align: center;
 }
 .card.table-wrap th.col-no,
-.card.table-wrap td.col-no {
+.card.table-wrap td.col-no,
+.user-table-card th.col-no,
+.user-table-card td.col-no {
   min-width: 3.5em;
   white-space: nowrap;
 }
 .card.table-wrap th.col-type,
-.card.table-wrap td.col-type {
+.card.table-wrap td.col-type,
+.user-table-card th.col-type,
+.user-table-card td.col-type {
   min-width: 4.5em;
   white-space: nowrap;
 }
-.card.table-wrap td.col-type .type-label {
+.card.table-wrap td.col-type .type-label,
+.user-table-card td.col-type .type-label {
   display: inline-block;
   font-weight: 600;
   font-size: 0.875rem;
@@ -807,25 +863,31 @@ onUnmounted(() => {
   border-radius: 4px;
   border: 1px solid;
 }
-.card.table-wrap td.col-type .type-user {
+.card.table-wrap td.col-type .type-user,
+.user-table-card td.col-type .type-user {
   color: #0369a1;
   border-color: #0ea5e9;
   background: #e0f2fe;
 }
-.card.table-wrap td.col-type .type-client {
+.card.table-wrap td.col-type .type-client,
+.user-table-card td.col-type .type-client {
   color: #047857;
   border-color: #10b981;
   background: #d1fae5;
 }
 .card.table-wrap th.col-remark,
-.card.table-wrap td.col-remark {
+.card.table-wrap td.col-remark,
+.user-table-card th.col-remark,
+.user-table-card td.col-remark {
   min-width: 8em;
   max-width: 14em;
   word-break: break-all;
   text-align: center;
 }
 .card.table-wrap th.col-ip,
-.card.table-wrap td.col-ip {
+.card.table-wrap td.col-ip,
+.user-table-card th.col-ip,
+.user-table-card td.col-ip {
   min-width: 9em;
   white-space: nowrap;
 }
@@ -883,33 +945,43 @@ onUnmounted(() => {
   background: #9ca3af;
 }
 .card.table-wrap th.col-time,
-.card.table-wrap td.col-time {
+.card.table-wrap td.col-time,
+.user-table-card th.col-time,
+.user-table-card td.col-time {
   min-width: 10em;
   white-space: nowrap;
 }
 .card.table-wrap th.col-duration,
-.card.table-wrap td.col-duration {
+.card.table-wrap td.col-duration,
+.user-table-card th.col-duration,
+.user-table-card td.col-duration {
   min-width: 4.5em;
   white-space: nowrap;
 }
 .card.table-wrap th.col-traffic,
-.card.table-wrap td.col-traffic {
+.card.table-wrap td.col-traffic,
+.user-table-card th.col-traffic,
+.user-table-card td.col-traffic {
   min-width: 5.5em;
   white-space: nowrap;
 }
 .card.table-wrap th.actions-col,
-.card.table-wrap td.actions-cell {
+.card.table-wrap td.actions-cell,
+.user-table-card th.actions-col,
+.user-table-card td.actions-cell {
   min-width: 200px;
   box-sizing: border-box;
   text-align: center;
 }
-.card.table-wrap td {
+.card.table-wrap td,
+.user-table-card td {
   padding: 0.75rem 1rem;
   font-size: 0.9rem;
   vertical-align: middle;
   border-bottom: 1px solid var(--border);
 }
-.card.table-wrap tbody tr:hover {
+.card.table-wrap tbody tr:hover,
+.user-table-card tbody tr:hover {
   background: #fafbfc;
 }
 .actions-cell {
@@ -918,7 +990,7 @@ onUnmounted(() => {
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.45rem;
 }
 .actions-cell .btn {
   white-space: nowrap;
@@ -942,17 +1014,34 @@ button.small {
   font-weight: 500;
 }
 .empty-tip {
-  padding: 2rem 1.5rem;
+  padding: 3rem 1.5rem;
   margin: 0;
   color: var(--muted);
   text-align: center;
   font-size: 0.9rem;
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.65) 0%, rgba(255, 255, 255, 1) 100%);
+}
+.actions-cell :deep(.el-button) {
+  min-width: 88px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+.actions-cell :deep(.el-button--primary.is-plain) {
+  background: #eef6ff;
+  border-color: #93c5fd;
+  color: #409eff;
+}
+.actions-cell :deep(.el-button--primary.is-plain:hover) {
+  background: #dbeafe;
+  border-color: #60a5fa;
 }
 .pagination {
   display: flex;
   align-items: center;
   gap: 1rem;
   flex-wrap: wrap;
+  justify-content: space-between;
+  padding: 0 0.25rem;
 }
 .pagination-info {
   color: var(--muted);
@@ -981,7 +1070,11 @@ button.small {
 .modal {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.45);
+  padding: 24px;
+  background:
+    radial-gradient(circle at top, rgba(59, 130, 246, 0.14), transparent 36%),
+    rgba(15, 23, 42, 0.48);
+  backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -994,36 +1087,43 @@ button.small {
 }
 .modal-inner-wide {
   min-width: 560px;
-  max-width: 640px;
-  padding: 1.25rem 1.5rem;
+  max-width: 720px;
+  padding: 1.4rem 1.6rem;
+  border-radius: 18px;
+  border: 1px solid rgba(226, 232, 240, 0.92);
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  box-shadow: 0 28px 70px rgba(15, 23, 42, 0.22);
 }
 .user-form-modal .form-group input[type="date"] {
   width: 100%;
   min-width: 0;
 }
 .ccd-section-title {
-  font-weight: 600;
-  font-size: 0.9rem;
-  margin-bottom: 0.35rem;
-  color: var(--text);
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 0.45rem;
+  color: #334155;
 }
 .ccd-warn-inline {
-  margin: 0 0 0.5rem;
-  padding: 0.4rem 0.6rem;
-  background: #fdf6ec;
-  border: 1px solid #f5dab1;
-  color: #b88230;
-  font-size: 0.78rem;
-  border-radius: var(--radius);
+  margin: 0 0 0.75rem;
+  padding: 0.65rem 0.8rem;
+  background: linear-gradient(180deg, #fff9ee 0%, #fff4da 100%);
+  border: 1px solid #f6d595;
+  color: #a16207;
+  font-size: 0.8rem;
+  border-radius: 10px;
+  line-height: 1.5;
 }
 .ccd-textarea-small {
   width: 100%;
-  padding: 0.5rem 0.75rem;
+  min-height: 100px;
+  padding: 0.7rem 0.85rem;
   font-family: ui-monospace, monospace;
   font-size: 0.85rem;
-  line-height: 1.4;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  line-height: 1.55;
+  border: 1px solid #dbe5f1;
+  border-radius: 10px;
+  background: #fff;
   resize: vertical;
   box-sizing: border-box;
 }
@@ -1031,10 +1131,11 @@ button.small {
   min-width: 0;
 }
 .modal-title {
-  margin: 0 0 0.75rem;
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: var(--text);
+  margin: 0 0 1rem;
+  font-size: 1.18rem;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: 0.01em;
 }
 .user-form-modal {
   max-height: 90vh;
@@ -1046,9 +1147,9 @@ button.small {
   gap: 0;
 }
 .form-section {
-  margin-bottom: 1rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid var(--border);
+  margin-bottom: 1.1rem;
+  padding-bottom: 1.1rem;
+  border-bottom: 1px solid #e8eef6;
 }
 .form-section-basic {
   border-bottom: none;
@@ -1056,28 +1157,29 @@ button.small {
   margin-bottom: 0.5rem;
 }
 .form-section-title {
-  margin: 0 0 0.75rem;
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--text);
+  margin: 0 0 0.85rem;
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: #334155;
 }
 /* 基本信息：浅底卡片 + 两列网格，行距统一 */
 .form-basic-card {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  padding: 1rem 1.1rem;
+  background: linear-gradient(180deg, #f8fbff 0%, #f4f8fc 100%);
+  border: 1px solid #dbe7f3;
+  border-radius: 14px;
+  padding: 1.05rem 1.15rem;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 .form-grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1rem 1.25rem;
+  gap: 1rem 1.3rem;
   align-items: start;
 }
 .form-grid-2 + .form-grid-2 {
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid #e2e8f0;
+  margin-top: 1.05rem;
+  padding-top: 1.05rem;
+  border-top: 1px solid #dbe7f3;
 }
 .form-basic-card .form-group {
   margin-bottom: 0;
@@ -1142,9 +1244,9 @@ button.small {
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 0.75rem;
-  margin-top: 1rem;
+  margin-top: 1.2rem;
   padding-top: 1rem;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid #e8eef6;
   border-bottom: none;
   margin-bottom: 0;
 }
@@ -1163,20 +1265,31 @@ button.small {
 }
 .form-group label {
   display: block;
-  margin-bottom: 0.3rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--text);
+  margin-bottom: 0.38rem;
+  font-size: 0.885rem;
+  font-weight: 600;
+  color: #334155;
 }
 .form-group input[type="text"],
 .form-group input[type="password"],
 .form-group input[type="email"] {
   width: 100%;
-  height: 34px;
-  padding: 0 0.6rem;
-  border-radius: var(--radius);
+  height: 38px;
+  padding: 0 0.75rem;
+  border: 1px solid #dbe5f1;
+  border-radius: 10px;
+  background: #fff;
   box-sizing: border-box;
   font-size: 0.9rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.form-group input[type="text"]:focus,
+.form-group input[type="password"]:focus,
+.form-group input[type="email"]:focus,
+.ccd-textarea-small:focus {
+  outline: none;
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.14);
 }
 .form-group-checkbox {
   margin-top: 0.2rem;
@@ -1210,9 +1323,10 @@ button.small {
 }
 .form-hint {
   display: block;
-  margin-top: 0.25rem;
-  font-size: 0.78rem;
+  margin-top: 0.3rem;
+  font-size: 0.79rem;
   color: var(--muted);
+  line-height: 1.5;
 }
 .form-hint.error {
   color: var(--danger, #dc2626);
@@ -1229,24 +1343,100 @@ button.small {
 }
 .form-actions {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.6rem;
   margin-top: 0;
   padding-top: 0;
   border-top: none;
 }
 .form-actions button {
-  height: 34px;
+  height: 38px;
   padding: 0 1rem;
-  font-size: 0.9rem;
+  font-size: 0.92rem;
+  border-radius: 10px;
+  font-weight: 600;
+}
+@media (max-width: 960px) {
+  .header-actions {
+    align-items: stretch;
+  }
+  .search-wrap {
+    width: 100%;
+  }
+}
+@media (max-width: 820px) {
+  .modal {
+    padding: 16px;
+    align-items: flex-start;
+    overflow-y: auto;
+  }
+  .modal-inner,
+  .modal-inner-wide {
+    min-width: 0;
+    width: min(100%, 720px);
+    max-width: 100%;
+    margin: 18px auto;
+    padding: 1.1rem 1rem;
+  }
+  .form-row-2,
+  .form-grid-2 {
+    grid-template-columns: 1fr;
+  }
+  .form-footer-bar {
+    align-items: stretch;
+  }
+  .form-footer-bar .form-actions,
+  .form-actions {
+    width: 100%;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
 }
 </style>
 
 <!-- 下拉挂在 body 上，需非 scoped 才能作用到 popper -->
 <style>
 .user-actions-dropdown {
-  min-width: 168px;
+  min-width: 188px;
+  padding: 8px;
+  border-radius: 14px;
+  border: 1px solid #e6edf7;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(10px);
+}
+.user-actions-dropdown .el-popper__arrow::before {
+  border-color: #e6edf7 !important;
+  background: rgba(255, 255, 255, 0.98) !important;
+}
+.user-actions-dropdown .el-dropdown-menu {
+  padding: 0;
+  border: none;
+  box-shadow: none;
+}
+.user-actions-dropdown .el-dropdown-menu__item {
+  min-height: 42px;
+  border-radius: 10px;
+  margin: 2px 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #334155;
+  transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+.user-actions-dropdown .el-dropdown-menu__item:hover {
+  background: #f3f8ff;
+  color: #2563eb;
+  transform: translateX(2px);
+}
+.user-actions-dropdown .el-dropdown-menu__item.is-disabled {
+  opacity: 0.5;
+}
+.user-actions-dropdown .el-dropdown-menu__item--divided {
+  margin-top: 8px;
+  border-top-color: #eef2f7;
+  padding-top: 10px;
 }
 .dropdown-danger-text {
-  color: var(--el-color-danger);
+  color: #ef4444;
+  font-weight: 700;
 }
 </style>

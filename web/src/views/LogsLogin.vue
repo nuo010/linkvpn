@@ -1,8 +1,16 @@
 <template>
   <div class="logs-page">
-    <div class="page-header">
-      <h2 class="page-title">连接记录</h2>
-      <div class="header-actions">
+    <div class="hero-card">
+      <div class="hero-copy">
+        <p class="hero-eyebrow">访问审计</p>
+        <h2 class="page-title">连接记录</h2>
+        <p class="hero-desc">这里展示账号登录成功、TLS 错误和认证失败记录，方便按日期快速回看最近的接入情况。</p>
+      </div>
+      <span class="refresh-hint">每 8 秒自动刷新</span>
+    </div>
+
+    <div class="toolbar-card">
+      <div class="page-header">
         <label class="date-label">日期</label>
         <el-date-picker
           v-model="dateFilter"
@@ -13,7 +21,6 @@
         />
         <el-button type="primary" size="small" @click="currentPage = 1; load()">查看</el-button>
         <el-button type="danger" size="small" @click="clearLogs">清空记录</el-button>
-        <span class="refresh-hint">每 8 秒自动刷新</span>
       </div>
     </div>
 
@@ -56,7 +63,10 @@
           </template>
         </el-table-column>
       </el-table>
-      <p v-if="list.length === 0 && !loading" class="empty-tip">暂无 VPN 连接记录。记录在访问「用户管理」或刷新 status 时同步生成。</p>
+      <div v-if="list.length === 0 && !loading" class="empty-state">
+        <p class="empty-state-title">暂无 VPN 连接记录</p>
+        <p class="empty-state-desc">记录会在访问“用户管理”或刷新 status 日志时同步生成，你也可以切换日期后重新查看。</p>
+      </div>
       <div v-if="total > 0" class="pagination-wrap">
         <el-pagination
           v-model:current-page="currentPage"
@@ -146,48 +156,137 @@ onUnmounted(() => {
   flex-direction: column;
   gap: 1rem;
 }
+.hero-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.15rem 1.2rem;
+  border-radius: 18px;
+  border: 1px solid #dbe7f3;
+  background:
+    radial-gradient(circle at top right, rgba(96, 165, 250, 0.12), transparent 32%),
+    linear-gradient(135deg, #ffffff 0%, #f7fbff 100%);
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.06);
+}
+.hero-copy {
+  max-width: 760px;
+}
+.hero-eyebrow {
+  margin: 0 0 0.3rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  color: #3b82f6;
+  font-weight: 700;
+}
+.page-title {
+  margin: 0;
+  font-size: 1.3rem;
+  color: #0f172a;
+}
+.hero-desc {
+  margin: 0.45rem 0 0;
+  color: #64748b;
+  line-height: 1.65;
+  font-size: 0.92rem;
+}
+.toolbar-card {
+  padding: 0.95rem 1rem;
+  border-radius: 16px;
+  border: 1px solid #dbe7f3;
+  background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.04);
+}
 .page-header {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.75rem;
-  justify-content: space-between;
+  justify-content: flex-start;
 }
 .date-label {
   font-size: 0.9rem;
-  color: var(--muted);
+  color: #64748b;
+  font-weight: 600;
 }
 .date-input {
   width: 150px;
 }
 .refresh-hint {
-  font-size: 0.8rem;
-  color: var(--muted);
-}
-.empty-tip {
-  padding: 1.5rem;
-  margin: 0;
-  color: var(--muted);
-  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 0.85rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  color: #2563eb;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  font-weight: 600;
 }
 .pagination-wrap {
-  padding: 0.75rem 0;
+  padding: 0.95rem 0 0.15rem;
   display: flex;
   justify-content: flex-end;
 }
 
+.table-wrap {
+  padding: 0.7rem 0.8rem 0.9rem;
+  border-radius: 18px;
+  border: 1px solid #dbe7f3;
+  background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+  box-shadow: 0 16px 34px rgba(15, 23, 42, 0.05);
+}
+.table-wrap :deep(.el-table) {
+  border-radius: 14px;
+  overflow: hidden;
+  --el-table-border-color: #e2e8f0;
+  --el-table-header-bg-color: #f8fafc;
+  --el-table-row-hover-bg-color: #f8fbff;
+}
+.table-wrap :deep(.el-table th.el-table__cell) {
+  color: #64748b;
+  font-weight: 700;
+}
+.table-wrap :deep(.el-table td.el-table__cell) {
+  color: #0f172a;
+}
+
 .status-tag {
   display: inline-block;
-  padding: 0.1rem 0.4rem;
+  padding: 0.22rem 0.7rem;
   border-radius: 999px;
   font-size: 0.8rem;
+  font-weight: 700;
+  border: 1px solid transparent;
 }
 .status-tag.success {
-  background: #e1f3d8;
-  color: #67c23a;
+  background: #ecfdf3;
+  color: #15803d;
+  border-color: #bbf7d0;
 }
 .status-tag.failed {
-  background: #fef0f0;
-  color: #f56c6c;
+  background: #fff1f2;
+  color: #dc2626;
+  border-color: #fecdd3;
+}
+@media (max-width: 900px) {
+  .hero-card {
+    flex-direction: column;
+  }
+}
+@media (max-width: 640px) {
+  .toolbar-card {
+    padding: 0.85rem;
+  }
+  .date-input {
+    width: 100%;
+  }
+  .page-header {
+    align-items: stretch;
+  }
+  .page-header > * {
+    width: 100%;
+  }
 }
 </style>

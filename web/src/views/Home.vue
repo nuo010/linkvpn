@@ -2,6 +2,22 @@
   <div class="dashboard">
     <p v-if="loadError" class="load-error-bar">加载失败：{{ loadError }}，请检查网络或重新登录。</p>
 
+    <div class="hero-card">
+      <div class="hero-copy">
+        <p class="hero-eyebrow">控制台总览</p>
+        <h3 class="hero-title">当前 OpenVPN 服务状态一目了然</h3>
+        <p class="hero-desc">
+          首页会自动刷新运行状态、在线人数和当前连接流量，方便你先看整体健康度，再进入具体模块排查。
+        </p>
+      </div>
+      <div class="hero-side">
+        <span :class="['hero-status', stats.openvpn_running ? 'success' : 'danger']">
+          {{ stats.openvpn_running ? '服务运行中' : '服务未运行' }}
+        </span>
+        <span class="hero-meta">自动刷新：每 10 秒</span>
+      </div>
+    </div>
+
     <div class="metrics-row">
       <div class="metric-card card">
         <h4 class="metric-title"><span class="metric-icon">⏱</span>系统运行时长</h4>
@@ -78,7 +94,10 @@
             </tr>
           </tbody>
         </table>
-        <p v-if="stats.top10_upload.length === 0" class="empty-tip">暂无数据</p>
+        <div v-if="stats.top10_upload.length === 0" class="empty-state">
+          <p class="empty-state-title">暂无上传流量数据</p>
+          <p class="empty-state-desc">当前没有活跃连接，或者还没有形成可统计的上传流量。</p>
+        </div>
       </div>
       <div class="card table-card">
         <h4 class="section-title">下载流量 Top 10（当前连接）</h4>
@@ -98,7 +117,10 @@
             </tr>
           </tbody>
         </table>
-        <p v-if="stats.top10_download.length === 0" class="empty-tip">暂无数据</p>
+        <div v-if="stats.top10_download.length === 0" class="empty-state">
+          <p class="empty-state-title">暂无下载流量数据</p>
+          <p class="empty-state-desc">当前没有活跃连接，或者还没有形成可统计的下载流量。</p>
+        </div>
       </div>
     </div>
   </div>
@@ -171,37 +193,103 @@ onUnmounted(() => {
 .dashboard {
   display: flex;
   flex-direction: column;
-  gap: 0.9rem;
+  gap: 1rem;
 }
 .load-error-bar {
   margin: 0;
-  padding: 0.5rem 0.75rem;
-  font-size: 0.85rem;
-  color: var(--danger, #c00);
-  background: #fef2f2;
-  border-radius: 6px;
+  padding: 0.75rem 0.9rem;
+  font-size: 0.86rem;
+  color: #b91c1c;
+  background: linear-gradient(180deg, #fff5f5 0%, #fef2f2 100%);
+  border-radius: 12px;
   border: 1px solid #fecaca;
+}
+.hero-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.15rem 1.2rem;
+  border-radius: 18px;
+  border: 1px solid #dbe7f3;
+  background:
+    radial-gradient(circle at top right, rgba(96, 165, 250, 0.14), transparent 32%),
+    linear-gradient(135deg, #ffffff 0%, #f6fbff 100%);
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.06);
+}
+.hero-copy {
+  max-width: 760px;
+}
+.hero-eyebrow {
+  margin: 0 0 0.3rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  color: #3b82f6;
+  font-weight: 700;
+}
+.hero-title {
+  margin: 0;
+  font-size: 1.28rem;
+  color: #0f172a;
+}
+.hero-desc {
+  margin: 0.45rem 0 0;
+  line-height: 1.65;
+  color: #64748b;
+  font-size: 0.92rem;
+}
+.hero-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.55rem;
+  min-width: 150px;
+}
+.hero-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 0 0.9rem;
+  border-radius: 999px;
+  font-size: 0.86rem;
+  font-weight: 700;
+  border: 1px solid transparent;
+}
+.hero-status.success {
+  color: #15803d;
+  background: #ecfdf3;
+  border-color: #bbf7d0;
+}
+.hero-status.danger {
+  color: #b91c1c;
+  background: #fff1f2;
+  border-color: #fecdd3;
+}
+.hero-meta {
+  color: #64748b;
+  font-size: 0.82rem;
 }
 .metrics-row {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 0.75rem;
+  gap: 0.9rem;
 }
 .metric-card {
-  padding: 0.75rem 0.95rem;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
-  border: 1px solid rgba(148, 163, 184, 0.25);
-  background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+  padding: 0.95rem 1rem;
+  border-radius: 16px;
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.05);
+  border: 1px solid rgba(203, 213, 225, 0.8);
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
 }
 .metric-title {
-  margin: 0 0 0.4rem;
-  font-size: 0.9rem;
-  color: #111827;
-  font-weight: 600;
+  margin: 0 0 0.45rem;
+  font-size: 0.92rem;
+  color: #1e293b;
+  font-weight: 700;
   display: flex;
   align-items: center;
   gap: 0.4rem;
@@ -210,15 +298,15 @@ onUnmounted(() => {
   font-size: 1rem;
 }
 .metric-main {
-  font-size: 1.5rem;
+  font-size: 1.55rem;
   font-weight: 700;
-  color: var(--accent);
+  color: #2563eb;
   text-align: left;
-  margin: 0.1rem 0 0.25rem;
+  margin: 0.15rem 0 0.35rem;
 }
 .metric-sub {
-  font-size: 0.82rem;
-  color: var(--muted);
+  font-size: 0.83rem;
+  color: #64748b;
 }
 .metric-sub-text {
   display: inline-block;
@@ -278,42 +366,52 @@ onUnmounted(() => {
 .two-col {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.65rem;
+  gap: 0.9rem;
 }
 .section-title {
-  margin: 0 0 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 600;
+  margin: 0 0 0.85rem;
+  font-size: 0.96rem;
+  font-weight: 700;
+  color: #1e293b;
 }
 .data-table {
   width: 100%;
-  font-size: 0.85rem;
+  font-size: 0.86rem;
   border-collapse: collapse;
-  border: 1px solid var(--border);
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
 }
 .data-table th {
   text-align: center;
-  padding: 0.45rem 0.6rem;
-  background: #fafafa;
-  border: 1px solid var(--border);
+  padding: 0.7rem 0.75rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  font-weight: 700;
 }
 .data-table td {
   text-align: center;
-  padding: 0.45rem 0.6rem;
-  border: 1px solid var(--border);
-}
-.empty-tip {
-  margin: 0;
-  padding: 0.6rem;
-  color: var(--muted);
-  font-size: 0.85rem;
-  text-align: center;
+  padding: 0.7rem 0.75rem;
+  border: 1px solid #e2e8f0;
+  color: #0f172a;
+  background: #fff;
 }
 .table-card {
   overflow-x: auto;
-  padding: 0.65rem 0.85rem;
+  padding: 1rem 1rem 0.9rem;
+  border-radius: 18px;
+  border: 1px solid #dbe7f3;
+  background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+  box-shadow: 0 16px 34px rgba(15, 23, 42, 0.05);
 }
 @media (max-width: 900px) {
+  .hero-card {
+    flex-direction: column;
+  }
+  .hero-side {
+    align-items: flex-start;
+  }
   .metrics-row {
     grid-template-columns: repeat(2, 1fr);
   }

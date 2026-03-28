@@ -4,25 +4,53 @@
       <div class="login-bg-sky"></div>
       <div class="login-bg-clouds"></div>
       <div class="login-bg-sun"></div>
+      <div class="login-bg-grid"></div>
     </div>
-    <div class="login-card">
-      <div class="login-brand">
-        <img class="login-logo" :src="logoUrl" alt="LinkVPN" />
-        <span class="login-name">LinkVPN</span>
+    <div class="login-shell">
+      <div class="login-panel login-panel-intro">
+        <p class="login-eyebrow">OpenVPN 管理控制台</p>
+        <h1 class="login-heading">一个更顺手的 LinkVPN 管理后台</h1>
+        <p class="login-copy">
+          登录后可以统一完成用户管理、服务配置、连接记录排查和日志查看。界面现在已经和后台其他页面统一成同一套风格。
+        </p>
+        <div class="login-feature-list">
+          <div class="login-feature-item">
+            <span class="feature-dot"></span>
+            <span>表单化配置 `server.conf`，减少手工编辑出错</span>
+          </div>
+          <div class="login-feature-item">
+            <span class="feature-dot"></span>
+            <span>客户端配置自动跟随协议、设备和加密参数</span>
+          </div>
+          <div class="login-feature-item">
+            <span class="feature-dot"></span>
+            <span>首页、用户、日志、系统配置视觉风格已统一</span>
+          </div>
+        </div>
       </div>
-      <p class="login-desc">登录以管理 VPN 用户与配置</p>
-      <form @submit.prevent="submit" class="login-form">
-        <div class="form-group">
-          <label>用户名</label>
-          <input v-model="username" type="text" required autocomplete="username" placeholder="请输入用户名" />
+
+      <div class="login-panel login-card">
+        <div class="login-brand">
+          <img class="login-logo" :src="logoUrl" alt="LinkVPN" />
+          <div class="login-brand-copy">
+            <span class="login-name">LinkVPN</span>
+            <span class="login-subtitle">管理员登录</span>
+          </div>
         </div>
-        <div class="form-group">
-          <label>密码</label>
-          <input v-model="password" type="password" required autocomplete="current-password" placeholder="请输入密码" />
-        </div>
-        <div v-if="error" class="login-error">{{ error }}</div>
-        <button type="submit" class="login-btn" :disabled="loading">{{ loading ? '登录中…' : '登录' }}</button>
-      </form>
+        <p class="login-desc">登录以管理 VPN 用户、配置和日志</p>
+        <form @submit.prevent="submit" class="login-form">
+          <div class="form-group">
+            <label>用户名</label>
+            <input v-model="username" type="text" required autocomplete="username" placeholder="请输入用户名" />
+          </div>
+          <div class="form-group">
+            <label>密码</label>
+            <input v-model="password" type="password" required autocomplete="current-password" placeholder="请输入密码" />
+          </div>
+          <div v-if="error" class="login-error">{{ error }}</div>
+          <button type="submit" class="login-btn" :disabled="loading">{{ loading ? '登录中…' : '登录' }}</button>
+        </form>
+      </div>
     </div>
   </div>
 </template>
@@ -60,7 +88,7 @@ async function submit() {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1.5rem;
+  padding: 1.8rem;
   position: relative;
   overflow: hidden;
 }
@@ -70,23 +98,21 @@ async function submit() {
   position: absolute;
   inset: 0;
   z-index: 0;
-  background: linear-gradient(180deg, #c8e7ff 0%, #e8f4fc 35%, #f5faff 65%, #fbfdff 100%);
+  background: linear-gradient(180deg, #d9eeff 0%, #edf6ff 34%, #f7fbff 68%, #fcfdff 100%);
 }
 
 .login-bg-sky {
   position: absolute;
   inset: 0;
-  /* 更通透的天蓝层次 */
   background:
-    linear-gradient(180deg, rgba(125, 211, 252, 0.45) 0%, transparent 42%),
-    linear-gradient(165deg, transparent 50%, rgba(224, 242, 254, 0.6) 100%);
+    linear-gradient(180deg, rgba(125, 211, 252, 0.32) 0%, transparent 42%),
+    linear-gradient(165deg, transparent 50%, rgba(224, 242, 254, 0.48) 100%);
   pointer-events: none;
 }
 
 .login-bg-clouds {
   position: absolute;
   inset: 0;
-  /* 云团：大块柔边白 + 淡蓝，模拟蓝天下的体积感 */
   background:
     radial-gradient(ellipse 90% 55% at 15% 25%, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0) 60%),
     radial-gradient(ellipse 70% 45% at 85% 18%, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0) 55%),
@@ -96,6 +122,16 @@ async function submit() {
     radial-gradient(ellipse 110% 60% at 50% 100%, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0) 45%);
   pointer-events: none;
   animation: login-cloud-drift 24s ease-in-out infinite alternate;
+}
+.login-bg-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(148, 163, 184, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.06) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.28), transparent 78%);
+  pointer-events: none;
 }
 
 @keyframes login-cloud-drift {
@@ -112,33 +148,97 @@ async function submit() {
 .login-bg-sun {
   position: absolute;
   inset: 0;
-  /* 顶部柔和「日光」 */
   background: radial-gradient(ellipse 70% 45% at 50% -5%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.15) 35%, transparent 60%);
   pointer-events: none;
 }
-
-.login-card {
+.login-shell {
   position: relative;
   z-index: 1;
-  width: 100%;
-  max-width: 400px;
-  padding: 2.5rem 2.25rem;
-  background: rgba(255, 255, 255, 0.92);
-  border-radius: 18px;
-  border: 1px solid rgba(186, 230, 253, 0.8);
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.8) inset,
-    0 20px 50px -12px rgba(14, 165, 233, 0.12),
-    0 12px 32px -8px rgba(56, 189, 248, 0.08);
-  text-align: center;
+  width: min(100%, 1040px);
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 1rem;
+  align-items: stretch;
+}
+.login-panel {
+  border-radius: 24px;
+  border: 1px solid rgba(219, 231, 243, 0.92);
   backdrop-filter: blur(12px);
+}
+.login-panel-intro {
+  padding: 2rem 2rem 1.8rem;
+  background:
+    radial-gradient(circle at top right, rgba(59, 130, 246, 0.18), transparent 34%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.72) 0%, rgba(248, 251, 255, 0.94) 100%);
+  box-shadow: 0 24px 50px rgba(37, 99, 235, 0.08);
+}
+.login-card {
+  width: 100%;
+  padding: 2rem 1.9rem 1.85rem;
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 24px;
+  border: 1px solid rgba(219, 231, 243, 0.92);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.85) inset,
+    0 24px 52px rgba(15, 23, 42, 0.1);
+  backdrop-filter: blur(12px);
+}
+.login-eyebrow {
+  margin: 0 0 0.4rem;
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  color: #2563eb;
+  font-weight: 700;
+}
+.login-heading {
+  margin: 0;
+  max-width: 12ch;
+  font-size: 2rem;
+  line-height: 1.12;
+  color: #0f172a;
+}
+.login-copy {
+  margin: 0.85rem 0 1.5rem;
+  max-width: 40rem;
+  color: #64748b;
+  line-height: 1.72;
+  font-size: 0.96rem;
+}
+.login-feature-list {
+  display: grid;
+  gap: 0.75rem;
+}
+.login-feature-item {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-height: 48px;
+  padding: 0.8rem 0.95rem;
+  border-radius: 16px;
+  border: 1px solid rgba(219, 231, 243, 0.96);
+  background: rgba(255, 255, 255, 0.82);
+  color: #334155;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+.feature-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%);
+  box-shadow: 0 0 0 5px rgba(96, 165, 250, 0.12);
+  flex-shrink: 0;
 }
 .login-brand {
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 0.75rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.65rem;
+}
+.login-brand-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
 }
 .login-logo {
   width: 52px;
@@ -151,15 +251,20 @@ async function submit() {
   box-shadow: 0 8px 24px rgba(14, 165, 233, 0.1);
 }
 .login-name {
-  font-size: 1.75rem;
+  font-size: 1.6rem;
   font-weight: 700;
   color: #0f172a;
   letter-spacing: -0.02em;
 }
+.login-subtitle {
+  color: #64748b;
+  font-size: 0.86rem;
+  font-weight: 600;
+}
 .login-desc {
   color: #64748b;
   font-size: 0.9rem;
-  margin: 0 0 1.75rem;
+  margin: 0 0 1.5rem;
 }
 .login-form .form-group {
   margin-bottom: 1.1rem;
@@ -167,59 +272,90 @@ async function submit() {
 }
 .login-form .form-group label {
   display: block;
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.38rem;
   font-size: 0.875rem;
-  font-weight: 500;
+  font-weight: 600;
   color: #334155;
 }
 .login-form .form-group input {
   width: 100%;
-  height: 44px;
+  height: 46px;
   padding: 0 1rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
+  border: 1px solid #dbe5f1;
+  border-radius: 12px;
   font-size: 0.95rem;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  background: rgba(255, 255, 255, 0.95);
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
   box-sizing: border-box;
 }
 .login-form .form-group input:focus {
   outline: none;
-  border-color: #0ea5e9;
-  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.14);
+  background: #fff;
 }
 .login-form .form-group input::placeholder {
   color: #94a3b8;
 }
 .login-error {
   margin-top: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  background: #fef2f2;
+  padding: 0.65rem 0.8rem;
+  background: linear-gradient(180deg, #fff5f5 0%, #fef2f2 100%);
   color: #dc2626;
   font-size: 0.875rem;
-  border-radius: 8px;
+  border-radius: 10px;
   text-align: left;
+  border: 1px solid #fecaca;
 }
 .login-btn {
   width: 100%;
   margin-top: 1rem;
-  height: 44px;
+  height: 46px;
   padding: 0 1.5rem;
-  background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   color: #fff;
-  border: none;
-  border-radius: 10px;
+  border: 1px solid #2563eb;
+  border-radius: 12px;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  transition: opacity 0.2s, transform 0.15s;
+  box-shadow: 0 14px 28px rgba(37, 99, 235, 0.2);
+  transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
 }
 .login-btn:hover:not(:disabled) {
-  opacity: 0.95;
+  opacity: 0.97;
   transform: translateY(-1px);
+  box-shadow: 0 18px 30px rgba(37, 99, 235, 0.24);
 }
 .login-btn:disabled {
   opacity: 0.7;
   cursor: not-allowed;
   transform: none;
+}
+@media (max-width: 900px) {
+  .login-shell {
+    grid-template-columns: 1fr;
+    max-width: 560px;
+  }
+  .login-panel-intro {
+    padding-bottom: 1.6rem;
+  }
+  .login-heading {
+    max-width: none;
+    font-size: 1.7rem;
+  }
+}
+@media (max-width: 520px) {
+  .login-page {
+    padding: 1rem;
+  }
+  .login-panel-intro,
+  .login-card {
+    padding: 1.35rem 1.15rem;
+    border-radius: 18px;
+  }
+  .login-heading {
+    font-size: 1.45rem;
+  }
 }
 </style>
