@@ -89,8 +89,9 @@ func BuildServerConfigFromParams(
 		b.WriteString("client-to-client\n")
 	}
 	b.WriteString("\n")
-	if management != "" {
-		b.WriteString(fmt.Sprintf("management %s\n", management))
+	if mgmtLine := formatManagementDirective(management); mgmtLine != "" {
+		b.WriteString(mgmtLine)
+		b.WriteString("\n")
 	}
 	b.WriteString(fmt.Sprintf("keepalive %s\n", strings.TrimSpace(keepalive)))
 	b.WriteString(fmt.Sprintf("cipher %s\n", strings.TrimSpace(cipherName)))
@@ -166,4 +167,29 @@ func buildPushRouteLines(raw string) []string {
 		result = append(result, fmt.Sprintf("push \"route %s %s\"", ip.Mask(ipNet.Mask).String(), mask))
 	}
 	return result
+}
+
+func formatManagementDirective(raw string) string {
+	raw = strings.TrimSpace(raw)
+	if raw == "" {
+		return ""
+	}
+	if strings.Contains(raw, " ") {
+		fields := strings.Fields(raw)
+		if len(fields) >= 2 {
+			return fmt.Sprintf("management %s %s", fields[0], fields[1])
+		}
+	}
+	host, port, err := net.SplitHostPort(raw)
+	if err == nil && strings.TrimSpace(host) != "" && strings.TrimSpace(port) != "" {
+		return fmt.Sprintf("management %s %s", host, port)
+	}
+	if idx := strings.LastIndex(raw, ":"); idx > 0 && idx < len(raw)-1 && !strings.Contains(raw[idx+1:], ":") {
+		host = strings.TrimSpace(raw[:idx])
+		port = strings.TrimSpace(raw[idx+1:])
+		if host != "" && port != "" {
+			return fmt.Sprintf("management %s %s", host, port)
+		}
+	}
+	return "management " + raw
 }

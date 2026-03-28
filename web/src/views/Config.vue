@@ -44,11 +44,6 @@
             <el-input v-model="form.max_connections" type="number" min="1" placeholder="200" />
           </el-form-item>
 
-          <el-form-item label="管理接口（management）">
-            <el-input v-model="form.management" placeholder="127.0.0.1:7505" />
-            <div class="field-help">对应 `management 127.0.0.1:7505`。用于 OpenVPN 管理端口，供状态查看或调试使用；留空则不写入该配置。</div>
-          </el-form-item>
-
           <el-form-item label="保活参数（keepalive）">
             <el-input v-model="form.keepalive" placeholder="10 120" />
             <div class="field-help">对应 `keepalive 10 120`。前一个数表示心跳间隔秒数，后一个数表示超时重启秒数。</div>
@@ -175,7 +170,6 @@ const form = ref({
   max_connections: '200',
   subnet: '10.8.8.0/24',
   push_routes: '',
-  management: '127.0.0.1:7505',
   push_dns1: '8.8.8.8',
   push_dns2: '2001:4860:4860::8888',
   vpn_gateway: false,
@@ -203,7 +197,6 @@ function normalizeParams(data = {}) {
     max_connections: String(data.max_connections ?? 200),
     subnet: data.subnet || '10.8.8.0/24',
     push_routes: data.push_routes || '',
-    management: data.management || '127.0.0.1:7505',
     push_dns1: data.push_dns1 || '',
     push_dns2: data.push_dns2 || '',
     vpn_gateway: !!data.vpn_gateway,

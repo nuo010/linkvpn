@@ -39,7 +39,7 @@ func DefaultOpenVPNParams() OpenVPNParams {
 		ClientToClient:     true,
 		Subnet:             "10.8.8.0/24",
 		PushRoutes:         "",
-		Management:         "127.0.0.1:7505",
+		Management:         "",
 		IPv6:               false,
 		IPv6Subnet:         "fd00:8::/64",
 		PushDNS1:           "8.8.8.8",
