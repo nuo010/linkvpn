@@ -134,7 +134,6 @@
 
       <div class="config-actions">
         <el-button type="primary" @click="saveParams">保存表单配置</el-button>
-        <el-button @click="applyParams">应用到 server.conf</el-button>
         <el-button @click="loadParams">重新加载表单</el-button>
         <el-button @click="resetParams">恢复默认参数</el-button>
         <el-button
@@ -252,22 +251,13 @@ async function loadFile() {
 
 async function saveParams() {
   try {
-    await client.post('/config/params', { ...form.value, auto_apply_to_config: true })
-    ElMessage.success('表单配置已保存并写入 server.conf')
+    const saveResp = await client.post('/config/params', { ...form.value, auto_apply_to_config: false })
+    const applyResp = await client.post('/config/params/apply')
     await loadFile()
+    const message = applyResp.data?.message || saveResp.data?.message || '表单配置已保存并写入 server.conf'
+    ElMessage.success(message)
   } catch (e) {
     ElMessage.error(e.response?.data?.error || '保存失败')
-  }
-}
-
-async function applyParams() {
-  try {
-    await client.post('/config/params', { ...form.value, auto_apply_to_config: false })
-    const { data } = await client.post('/config/params/apply')
-    await loadFile()
-    ElMessage.success(data.message || '已应用到配置文件')
-  } catch (e) {
-    ElMessage.error(e.response?.data?.error || '应用失败')
   }
 }
 
