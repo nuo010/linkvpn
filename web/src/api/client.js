@@ -16,8 +16,10 @@ client.interceptors.response.use(
   (err) => {
     if (err.response?.status === 401) {
       localStorage.removeItem('token')
-      // 使用 replace 避免历史记录里留下会再次触发 401 的地址，减少重定向循环风险
-      window.location.replace('/login')
+      // 避免在登录页或重复跳转过程中再次 replace，减少循环跳转风险
+      if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
+        window.location.replace('/login')
+      }
     }
     return Promise.reject(err)
   }

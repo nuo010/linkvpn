@@ -14,8 +14,8 @@ const routes = [
       {
         path: 'settings',
         component: () => import('../views/Settings.vue'),
-        redirect: () => ({ path: '/settings/config' }),
         children: [
+          { path: '', redirect: '/settings/config' },
           { path: 'config', name: 'settingsConfig', component: () => import('../views/Config.vue') },
           { path: 'system', name: 'settingsSystem', component: () => import('../views/System.vue') },
         ],
@@ -33,16 +33,21 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
-  strict: false, // 同时匹配 /settings 与 /settings/
 })
 
-router.beforeEach((to, _from, next) => {
+router.beforeEach(async (to, _from, next) => {
   const auth = useAuthStore()
-  if (to.meta.public) return next()
-  if (to.meta.requiresAuth && !auth.token) return next({ path: '/login', replace: true })
-  // 统一去掉尾部斜杠，避免 /settings/ 与子路由重定向产生循环
-  if (to.path.length > 1 && to.path.endsWith('/')) {
-    return next({ path: to.path.slice(0, -1), replace: true })
+  if (to.meta.public) {
+    if (to.path === '/login' && auth.token && !auth.checked) {
+      const ok = await auth.verifyToken()
+      if (ok) return next({ path: '/', replace: true })
+    }
+    return next()
+  }
+  if (!auth.token) return next({ path: '/login', replace: true })
+  if (!auth.checked) {
+    const ok = await auth.verifyToken()
+    if (!ok) return next({ path: '/login', replace: true })
   }
   next()
 })
