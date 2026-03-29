@@ -934,6 +934,16 @@ onUnmounted(() => {
   font-weight: 700;
   letter-spacing: 0.02em;
 }
+.tag-type:deep(.el-tag--info.el-tag--light) {
+  color: #7c3aed;
+  background: #f5f3ff;
+  border-color: #c4b5fd;
+}
+.tag-type:deep(.el-tag--success.el-tag--light) {
+  color: #15803d;
+  background: #ecfdf3;
+  border-color: #86efac;
+}
 .tag-ip {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   font-weight: 600;
