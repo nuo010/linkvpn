@@ -7,6 +7,10 @@ RUN apk add --no-cache \
     bash \
     && update-ca-certificates
 
+# 设置容器时区为 Asia/Shanghai，保证 OpenVPN 与面板日志时间与国内时间一致
+ENV TZ=Asia/Shanghai
+RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo "Asia/Shanghai" > /etc/timezone
+
 # 默认配置 / 密码文件路径（可被环境变量覆盖）
 ENV OVPN_FILE=/config/client.ovpn \
     AUTH_FILE=/config/auth.txt
