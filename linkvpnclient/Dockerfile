@@ -5,6 +5,7 @@ RUN apk add --no-cache \
     openvpn \
     ca-certificates \
     bash \
+    tzdata \
     && update-ca-certificates
 
 # 设置容器时区为 Asia/Shanghai，保证 OpenVPN 与面板日志时间与国内时间一致

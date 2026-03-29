@@ -6,6 +6,7 @@ AUTH_FILE="${AUTH_FILE:-/config/auth.txt}"
 
 echo "[linkvpnclient] OpenVPN 版本:"
 openvpn --version | head -n 1 || echo "[linkvpnclient] 无法获取 OpenVPN 版本"
+echo "[linkvpnclient] 当前时间: $(date '+%Y-%m-%d %H:%M:%S %Z %z')"
 
 if [ ! -f "$OVPN_FILE" ]; then
   echo "[linkvpnclient] ERROR: 未找到配置文件: $OVPN_FILE" >&2
