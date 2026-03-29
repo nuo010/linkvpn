@@ -41,5 +41,9 @@ func OpenAuthDB(cfg *config.Config) (*gorm.DB, error) {
 		return nil, fmt.Errorf("DATABASE_PATH 未配置")
 	}
 	// 必须与 NewDB 一致用 sqlite.Open(路径)，否则可能连到空库
-	return gorm.Open(sqlite.Open(cfg.DatabasePath), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open(cfg.DatabasePath), &gorm.Config{})
+	if err != nil {
+		return nil, fmt.Errorf("打开认证数据库失败: %w (path=%s)", err, cfg.DatabasePath)
+	}
+	return db, nil
 }

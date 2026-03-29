@@ -53,6 +53,7 @@ func main() {
 	}
 
 	cfg := config.Load()
+	log.Printf("authcheck: using database path: %s", cfg.DatabasePath)
 	// 不能用 NewDB：会 AutoMigrate → readonly database。OpenAuthDB 与 NewDB 同路径打开，仅跳过 Migrate
 	db, err := store.OpenAuthDB(cfg)
 	if err != nil {
