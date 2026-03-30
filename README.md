@@ -88,7 +88,7 @@
         --device /dev/net/tun \
         --cap-add=NET_ADMIN \
         --restart unless-stopped \
-        xxgl/linkvpn:1.0
+        xxgl/linkvpn:1.1-amd
    ```
 
 2. **首次启动**：  
@@ -116,7 +116,7 @@
           --device /dev/net/tun:/dev/net/tun \
           -v "$(pwd)/xxxx.ovpn:/config/client.ovpn" \
           -v "$(pwd)/auth.txt:/config/auth.txt" \
-          xxgl/linkvpnclient:1.1-amd
+          xxgl/linkvpnclient:1.2-amd
 ```
 
 ## 五、配置与端口

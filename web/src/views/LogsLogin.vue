@@ -71,9 +71,10 @@
         <el-pagination
           v-model:current-page="currentPage"
           v-model:page-size="pageSize"
+          class="unified-pagination"
           :page-sizes="[10, 20, 50, 100]"
           :total="total"
-          layout="total, sizes, prev, pager, next"
+          layout="total, sizes, prev, pager, next, jumper"
           small
           @size-change="load"
           @current-change="load"
@@ -229,6 +230,41 @@ onUnmounted(() => {
   display: flex;
   justify-content: flex-end;
 }
+.pagination-wrap :deep(.unified-pagination) {
+  justify-content: flex-end;
+}
+.pagination-wrap :deep(.el-pagination) {
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+.pagination-wrap :deep(.el-pagination__total),
+.pagination-wrap :deep(.el-pagination__jump) {
+  color: #64748b;
+  font-size: 0.9rem;
+}
+.pagination-wrap :deep(.el-pagination__sizes .el-select__wrapper),
+.pagination-wrap :deep(.el-pagination__jump .el-input__wrapper) {
+  min-height: 38px;
+  border-radius: 12px;
+  border: 1px solid #d8e3f0;
+  box-shadow: none;
+}
+.pagination-wrap :deep(.btn-prev),
+.pagination-wrap :deep(.btn-next),
+.pagination-wrap :deep(.el-pager li) {
+  min-width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  border: 1px solid #d8e3f0;
+  background: #fff;
+  color: #334155;
+  font-weight: 600;
+}
+.pagination-wrap :deep(.el-pager li.is-active) {
+  background: #3b82f6;
+  border-color: #2563eb;
+  color: #fff;
+}
 
 .table-wrap {
   padding: 0.7rem 0.8rem 0.9rem;
@@ -287,6 +323,11 @@ onUnmounted(() => {
   }
   .page-header > * {
     width: 100%;
+  }
+  .pagination-wrap,
+  .pagination-wrap :deep(.unified-pagination),
+  .pagination-wrap :deep(.el-pagination) {
+    justify-content: flex-start;
   }
 }
 </style>

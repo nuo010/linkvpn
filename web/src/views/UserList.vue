@@ -181,22 +181,15 @@
     </div>
 
     <div v-if="filteredUsers.length > 0" class="pagination">
-      <span class="pagination-info">共 {{ filteredUsers.length }} 条</span>
-      <el-select
-        v-model="pageSize"
-        class="page-size-select"
-        size="default"
-        @change="currentPage = 1"
-      >
-        <el-option :value="10" label="10 条/页" />
-        <el-option :value="20" label="20 条/页" />
-        <el-option :value="50" label="50 条/页" />
-      </el-select>
-      <div class="page-btns">
-        <button :disabled="currentPage <= 1" @click="currentPage--">上一页</button>
-        <span class="page-num">{{ currentPage }} / {{ totalPages }}</span>
-        <button :disabled="currentPage >= totalPages" @click="currentPage++">下一页</button>
-      </div>
+      <el-pagination
+        v-model:current-page="currentPage"
+        v-model:page-size="pageSize"
+        class="unified-pagination"
+        :page-sizes="[10, 20, 50]"
+        :total="filteredUsers.length"
+        layout="total, sizes, prev, pager, next, jumper"
+        @size-change="currentPage = 1"
+      />
     </div>
 
     <div v-if="showForm" class="modal" @click.self="showForm = false">
@@ -464,7 +457,6 @@ const filteredUsers = computed(() => {
   return list
 })
 
-const totalPages = computed(() => Math.max(1, Math.ceil(filteredUsers.value.length / pageSize.value)))
 const paginatedUsers = computed(() => {
   const list = filteredUsers.value
   const start = (currentPage.value - 1) * pageSize.value
@@ -1075,38 +1067,48 @@ button.small {
 .pagination {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  flex-wrap: wrap;
   justify-content: flex-end;
   padding: 0.15rem 0.3rem 0;
   margin-top: -0.1rem;
 }
-.pagination-info {
-  color: var(--muted);
+.pagination :deep(.unified-pagination) {
+  justify-content: flex-end;
+}
+.pagination :deep(.el-pagination) {
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+.pagination :deep(.el-pagination__total),
+.pagination :deep(.el-pagination__jump) {
+  color: #64748b;
   font-size: 0.9rem;
 }
-.page-size-select {
-  width: 120px;
-}
-.page-size-select :deep(.el-select__wrapper) {
+.pagination :deep(.el-pagination__sizes .el-select__wrapper),
+.pagination :deep(.el-pagination__jump .el-input__wrapper) {
   min-height: 40px;
   border-radius: 12px;
+  border: 1px solid #d8e3f0;
+  box-shadow: none;
 }
-.page-btns {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-.page-btns button {
+.pagination :deep(.btn-prev),
+.pagination :deep(.btn-next),
+.pagination :deep(.el-pager li) {
+  min-width: 40px;
   height: 40px;
-  padding: 0 1rem;
   border-radius: 12px;
+  border: 1px solid #d8e3f0;
+  background: #fff;
+  color: #334155;
+  font-weight: 600;
 }
-.page-num {
-  font-size: 0.9rem;
-  color: var(--muted);
-  min-width: 56px;
-  text-align: center;
+.pagination :deep(.el-pager li.is-active) {
+  background: #3b82f6;
+  border-color: #2563eb;
+  color: #fff;
+}
+.pagination :deep(.btn-prev:disabled),
+.pagination :deep(.btn-next:disabled) {
+  opacity: 0.55;
 }
 .modal {
   position: fixed;
@@ -1410,7 +1412,7 @@ button.small {
     justify-content: space-between;
   }
   .pagination {
-    justify-content: flex-start;
+    justify-content: flex-end;
   }
 }
 @media (max-width: 820px) {
@@ -1472,19 +1474,11 @@ button.small {
     text-align: center;
   }
   .pagination {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.75rem;
+    justify-content: flex-start;
   }
-  .pagination-info {
-    text-align: center;
-  }
-  .page-size-select {
-    width: 100%;
-  }
-  .page-btns {
-    justify-content: center;
-    flex-wrap: wrap;
+  .pagination :deep(.unified-pagination),
+  .pagination :deep(.el-pagination) {
+    justify-content: flex-start;
   }
 }
 </style>

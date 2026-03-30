@@ -51,17 +51,14 @@
     </div>
 
     <div v-if="filteredList.length > 0" class="pagination">
-      <span class="pagination-info">显示 {{ (currentPage - 1) * pageSize + 1 }} 至 {{ Math.min(currentPage * pageSize, filteredList.length) }} 项，共 {{ filteredList.length }} 项</span>
-      <select v-model.number="pageSize" class="page-size">
-        <option :value="10">10 条/页</option>
-        <option :value="20">20 条/页</option>
-        <option :value="50">50 条/页</option>
-      </select>
-      <div class="page-btns">
-        <button :disabled="currentPage <= 1" @click="currentPage--">上一页</button>
-        <span class="page-num">{{ currentPage }} / {{ totalPages }}</span>
-        <button :disabled="currentPage >= totalPages" @click="currentPage++">下一页</button>
-      </div>
+      <el-pagination
+        v-model:current-page="currentPage"
+        v-model:page-size="pageSize"
+        class="unified-pagination"
+        :page-sizes="[10, 20, 50]"
+        :total="filteredList.length"
+        layout="total, sizes, prev, pager, next, jumper"
+      />
     </div>
   </div>
 </template>
@@ -111,7 +108,6 @@ const filteredList = computed(() => {
   return arr
 })
 
-const totalPages = computed(() => Math.max(1, Math.ceil(filteredList.value.length / pageSize.value)))
 const paginatedList = computed(() => {
   const start = (currentPage.value - 1) * pageSize.value
   return filteredList.value.slice(start, start + pageSize.value)
@@ -198,25 +194,41 @@ onMounted(load)
 .pagination {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  flex-wrap: wrap;
   justify-content: flex-end;
 }
-.pagination-info {
-  color: var(--muted);
+.pagination :deep(.unified-pagination) {
+  justify-content: flex-end;
+}
+.pagination :deep(.el-pagination) {
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+.pagination :deep(.el-pagination__total),
+.pagination :deep(.el-pagination__jump) {
+  color: #64748b;
   font-size: 0.9rem;
 }
-.page-size {
-  width: auto;
-  padding: 0.35rem 0.5rem;
+.pagination :deep(.el-pagination__sizes .el-select__wrapper),
+.pagination :deep(.el-pagination__jump .el-input__wrapper) {
+  min-height: 38px;
+  border-radius: 12px;
+  border: 1px solid #d8e3f0;
+  box-shadow: none;
 }
-.page-btns {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+.pagination :deep(.btn-prev),
+.pagination :deep(.btn-next),
+.pagination :deep(.el-pager li) {
+  min-width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  border: 1px solid #d8e3f0;
+  background: #fff;
+  color: #334155;
+  font-weight: 600;
 }
-.page-num {
-  font-size: 0.9rem;
-  color: var(--muted);
+.pagination :deep(.el-pager li.is-active) {
+  background: #3b82f6;
+  border-color: #2563eb;
+  color: #fff;
 }
 </style>
