@@ -934,16 +934,6 @@ onUnmounted(() => {
   font-weight: 700;
   letter-spacing: 0.02em;
 }
-.tag-type:deep(.el-tag--info.el-tag--light) {
-  color: #7c3aed;
-  background: #f5f3ff;
-  border-color: #c4b5fd;
-}
-.tag-type:deep(.el-tag--success.el-tag--light) {
-  color: #15803d;
-  background: #ecfdf3;
-  border-color: #86efac;
-}
 .tag-ip {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   font-weight: 600;
@@ -1087,7 +1077,7 @@ button.small {
   align-items: center;
   gap: 1rem;
   flex-wrap: wrap;
-  justify-content: space-between;
+  justify-content: flex-end;
   padding: 0.15rem 0.3rem 0;
   margin-top: -0.1rem;
 }
@@ -1501,6 +1491,16 @@ button.small {
 
 <!-- 下拉挂在 body 上，需非 scoped 才能作用到 popper -->
 <style>
+.tag-type.el-tag--info.el-tag--light {
+  color: #7c3aed !important;
+  background: #f5f3ff !important;
+  border-color: #c4b5fd !important;
+}
+.tag-type.el-tag--success.el-tag--light {
+  color: #15803d !important;
+  background: #ecfdf3 !important;
+  border-color: #86efac !important;
+}
 .user-actions-dropdown {
   min-width: 170px;
   padding: 6px;

@@ -37,6 +37,10 @@
           <span v-show="!sidebarCollapsed || isMobile" class="nav-text">注销登录</span>
         </button>
       </nav>
+      <div class="sidebar-version" :class="{ collapsed: sidebarCollapsed && !isMobile }">
+        <span class="version-label" v-show="!sidebarCollapsed || isMobile">版本</span>
+        <span class="version-value">v{{ appVersion }}</span>
+      </div>
       <button v-if="!isMobile" class="collapse-btn" @click="sidebarCollapsed = !sidebarCollapsed" :title="sidebarCollapsed ? '展开' : '收起'">
         {{ sidebarCollapsed ? '»' : '«' }}
       </button>
@@ -107,6 +111,7 @@ const auth = useAuthStore()
 const sidebarCollapsed = ref(false)
 const mobileSidebarOpen = ref(false)
 const isMobile = ref(false)
+const appVersion = import.meta.env.VITE_APP_VERSION || '0.0.1'
 
 const showInitialSetupModal = ref(false)
 const initialHost = ref('')
@@ -326,6 +331,32 @@ watch(() => route.fullPath, () => {
   margin-top: auto;
   color: #475569;
 }
+.sidebar-version {
+  margin: 0 0.65rem 0.45rem;
+  padding: 0.45rem 0.7rem;
+  border-radius: 12px;
+  border: 1px solid rgba(203, 213, 225, 0.88);
+  background: rgba(255, 255, 255, 0.92);
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.04);
+}
+.sidebar-version.collapsed {
+  justify-content: center;
+  padding-left: 0.3rem;
+  padding-right: 0.3rem;
+}
+.version-label {
+  font-weight: 600;
+}
+.version-value {
+  font-weight: 700;
+  color: #2563eb;
+}
 .collapse-btn {
   margin: 0.65rem;
   padding: 0.48rem;
@@ -503,6 +534,9 @@ watch(() => route.fullPath, () => {
   }
   .main-wrap {
     width: 100%;
+  }
+  .sidebar-version {
+    margin-bottom: 0.65rem;
   }
 }
 @media (max-width: 640px) {

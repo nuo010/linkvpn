@@ -200,6 +200,7 @@ onMounted(load)
   align-items: center;
   gap: 1rem;
   flex-wrap: wrap;
+  justify-content: flex-end;
 }
 .pagination-info {
   color: var(--muted);
